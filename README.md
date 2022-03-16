@@ -116,7 +116,15 @@ ALTER TABLE `person`
 Person person = new Person(2, "Jacob", "jacob.doe@um.com", 1);
 yorm.update(person);
 ```
-We've inserted and updated elements in the table. How can we retrieve them into Records. The first and easiest way would be retrieving all the elements. It's just one line:
+Insertion can even be massive:
+```java
+Person person1 = new Person(2, "Hermione", "hermione.granger@hogwarts.com", 1);
+Person person2 = new Person(3, "Harry", "harry.potter@hogwarts.com", 1);
+Person person3 = new Person(4, "Sauron", "sauron@mordor.com", 2);
+List<Person> list = List.of(person1, person2, person3);
+yorm.insert(list);
+```
+We've inserted and updated elements in the table. How can we retrieve them into Records? The first and easiest way would be retrieving all the elements. It's just one line:
 ```java
 List<Person> personList = yorm.get(Person.class);
 ```
