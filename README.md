@@ -3,9 +3,9 @@
 
 [![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://travis-ci.org/joemccann/dillinger)
 
-Yorm is a basic ORM designed to work with Java Records.
+Yorm is a basic ORM designed to work with Java Records, without class generation, neither annotations.
 In the world of microservices, there is a tendency to have very contained logic within every service,
-and hence reduced databases, that in many cases are just no more than several tables with not that many fields.
+and hence reduced databases, that in many cases are simply no more than several tables with not that many fields.
 Java Records usually are a perfect fit for basic CRUD operations, and here is where Yorm shines.
 
 **Yorm** needs at least Java 17.
@@ -17,10 +17,10 @@ Java Records usually are a perfect fit for basic CRUD operations, and here is wh
 - Your tables contain auto increment ids
 - You don't need complex INNER JOIN queries, just basic CRUD
 
-Although the Java industry offers very well maintained ORM solutions like Hibernate or Jooq, they tend not work that well 
+Although the Java industry offers very well maintained ORM solutions like Hibernate or Jooq, they tend not to work that well 
 with Java Records. **Yorm** on the other side is specifically designed to leverage this Java capability.
 
-Due to the immutable nature of Java Recored, **Yorm** cannot be understood as a persistent ORM. 
+Due to the immutable nature of Java Records, **Yorm** cannot be understood as a persistent ORM. 
 ## Features
 
 - No need to generate classes
