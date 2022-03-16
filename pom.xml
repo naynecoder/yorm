@@ -4,9 +4,28 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.example</groupId>
-  <artifactId>Yorm</artifactId>
+  <groupId>org.yorm</groupId>
+  <artifactId>yorm</artifactId>
   <version>1.0</version>
+
+  <packaging>jar</packaging>
+
+  <name>Yorm</name>
+  <description>Simple ORM based on Java Records</description>
+  <url>https://github.com/naynecoder/yorm</url>
+
+  <licenses>
+    <license>
+      <name>The Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
+
+  <scm>
+    <connection>scm:git:git://github.com/naynecoder/yorm.git</connection>
+    <developerConnection>scm:git:ssh://github.com:naynecoder/yorm.git</developerConnection>
+    <url>https://github.com/naynecoder/yorm</url>
+  </scm>
 
   <properties>
     <maven.compiler.source>17</maven.compiler.source>
