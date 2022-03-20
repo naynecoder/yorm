@@ -33,7 +33,6 @@
     <version.junit>5.8.2</version.junit>
     <version.hikaricp>5.0.0</version.hikaricp>
     <version.mysql>8.0.27</version.mysql>
-    <version.log4j>2.6.1</version.log4j>
     <version.slf4j>2.7</version.slf4j>
     <version.testcontainers>1.16.2</version.testcontainers>
     <version.maven-surefire>3.0.0-M5</version.maven-surefire>
@@ -48,16 +47,6 @@
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
       <version>${version.mysql}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-api</artifactId>
-      <version>${version.log4j}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-core</artifactId>
-      <version>${version.log4j}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
