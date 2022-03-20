@@ -3,7 +3,7 @@
 
 [![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://travis-ci.org/joemccann/dillinger)
 
-Yorm is a basic ORM designed to work with Java Records, without class generation, neither annotations.
+Yorm is a basic ORM-alike framework designed to work with Java Records, without class generation, neither annotations.
 In the world of microservices, there is a tendency to have very contained logic within every service,
 and hence reduced databases, that in many cases are simply no more than several tables with not that many fields.
 Java Records usually are a perfect fit for basic CRUD operations, and here is where Yorm shines.
@@ -20,7 +20,8 @@ Java Records usually are a perfect fit for basic CRUD operations, and here is wh
 Although the Java industry offers very well maintained ORM solutions like Hibernate or Jooq, they tend not to work that well 
 with Java Records. **Yorm** on the other side is specifically designed to leverage this Java capability.
 
-Due to the immutable nature of Java Records, **Yorm** cannot be understood as a persistent ORM. 
+Due to the immutable nature of Java Records, **Yorm** cannot be understood as a persistent ORM, not even as an ORM, as there aren't really 
+any relationships. 
 ## Features
 
 - No need to generate classes
@@ -31,7 +32,7 @@ Due to the immutable nature of Java Records, **Yorm** cannot be understood as a 
 **Yorm** doesn't need to generate classes or to annotate them, but it works on conventions. It will assume that your
 table has a Primary Key called *id*, probably with an autoincrement. Also it will assume that foreign keys will follow the naming patter of *table_id*. The convention will assume as well that fields in the table and fields in the record will have the same name, or a very similar one.
 
-When a Java Record is operated with **Yorm**, a reflection inspection will came in, and all the methods of the Record will be matched with their counterparts from the database. This matching will be kept in memory as a map, to avoid using reflection again. However, if there is a change in the database, the microservice will probably need to be restarted to refresh this mapping.
+When a Java Record is operated with **Yorm**, a reflection inspection will came in, and all the methods of the Record will be matched with their counterparts from the database. This matching will be kept in memory as a map, to avoid using reflection again. However, if there is a change in the database structure, the microservice will probably need to be restarted to refresh this mapping.
 
 ## Dependencies
 
@@ -43,7 +44,7 @@ When a Java Record is operated with **Yorm**, a reflection inspection will came 
 - [TestContainers] - Also for the unit tests
 - [log4j] - Logging is usually useful
 
-And that's it, the *Yorm* lies heavily on Java 17 Records and Reflections.
+And that's it, the **Yorm** lies heavily on Java 17 Records and Reflections.
 
 ## How to use it with examples
 
