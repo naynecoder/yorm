@@ -11,7 +11,7 @@
   <packaging>jar</packaging>
 
   <name>Yorm</name>
-  <description>Simple ORM based on Java Records</description>
+  <description>Simple ORM-alike based on Java Records</description>
   <url>https://github.com/naynecoder/yorm</url>
 
   <licenses>
@@ -36,6 +36,7 @@
     <version.log4j>2.6.1</version.log4j>
     <version.slf4j>2.7</version.slf4j>
     <version.testcontainers>1.16.2</version.testcontainers>
+    <version.maven-surefire>3.0.0-M5</version.maven-surefire>
   </properties>
   <dependencies>
     <dependency>
@@ -82,5 +83,18 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+
+  <build>
+    <defaultGoal>install</defaultGoal>
+    <directory>target</directory>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${version.maven-surefire}</version>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>
