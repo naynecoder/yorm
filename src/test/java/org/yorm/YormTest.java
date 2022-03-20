@@ -84,7 +84,7 @@ class YormTest {
         Person person3 = new Person(4, "Sauron", "sauron@mordor.com", 2);
         List<Person> list = List.of(person1, person2, person3);
         yorm.insert(list);
-        List<Person> personList = yorm.get(Person.class);
+        List<Person> personList = yorm.find(Person.class);
         assertNotNull(personList);
         assertEquals(4, personList.size());
     }
@@ -92,7 +92,7 @@ class YormTest {
     @Test
     @Order(5)
     void getCompany() throws YormException {
-        Company company = yorm.get(Company.class, 1);
+        Company company = yorm.find(Company.class, 1);
         assertEquals("GB", company.countryCode());
         assertEquals("Hogwarts", company.name());
         assertEquals(LocalDate.of(1968, 2, 12), company.date());
@@ -102,11 +102,11 @@ class YormTest {
     @Test
     @Order(6)
     void getPerson() throws YormException {
-        Person person = yorm.get(Person.class, 1);
+        Person person = yorm.find(Person.class, 1);
         assertEquals("John", person.name());
         assertEquals("john.doe@um.com", person.email());
         assertEquals(1, person.companyId());
-        Person person2 = yorm.get(Person.class, 2);
+        Person person2 = yorm.find(Person.class, 2);
         assertEquals("Hermione", person2.name());
         assertEquals("hermione.granger@hogwarts.com", person2.email());
         assertEquals(1, person2.companyId());
@@ -115,7 +115,7 @@ class YormTest {
     @Test
     @Order(7)
     void getEverything() throws YormException {
-        List<Person> personList = yorm.get(Person.class);
+        List<Person> personList = yorm.find(Person.class);
         assertNotNull(personList);
         assertEquals(4, personList.size());
         Person person2 = personList.get(1);
@@ -128,14 +128,14 @@ class YormTest {
     @Order(8)
     void getWithForeignKey() throws YormException {
         Company company = new Company(1, null, null, null, false);
-        List<Person> personList = yorm.get(Person.class, company);
+        List<Person> personList = yorm.find(Person.class, company);
         assertNotNull(personList);
         assertEquals(3, personList.size());
         Person person2 = personList.get(1);
         assertEquals("Hermione", person2.name());
         assertEquals("hermione.granger@hogwarts.com", person2.email());
         assertEquals(1, person2.companyId());
-        List<Person> personList2 = yorm.get(Person.class, new Company(2, null, null, null, false));
+        List<Person> personList2 = yorm.find(Person.class, new Company(2, null, null, null, false));
         assertNotNull(personList2);
         assertEquals(1, personList2.size());
         Person person1 = personList2.get(0);
@@ -150,7 +150,7 @@ class YormTest {
         Person personFilter1 = new Person(0, "harry", "john", 0);
         Person personFilter2 = new Person(0, null, null, 2);
         List<Person> list = List.of(personFilter1, personFilter2);
-        List<Person> personList = yorm.get(list);
+        List<Person> personList = yorm.find(list);
         assertNotNull(personList);
         assertEquals(3, personList.size());
         Person person1 = personList.stream().filter(p -> p.id() == 4).findFirst().get();
@@ -164,21 +164,21 @@ class YormTest {
     @Order(10)
     void getFilteringNoResults() throws YormException {
         Person personFilter1 = new Person(0, "Peter", null, 0);
-        List<Person> personList = yorm.get(List.of(personFilter1));
+        List<Person> personList = yorm.find(List.of(personFilter1));
         assertTrue(personList.isEmpty());
     }
 
     @Test
     @Order(11)
     void update() throws YormException {
-        Person personResultBefore = yorm.get(Person.class, 1);
+        Person personResultBefore = yorm.find(Person.class, 1);
         assertEquals(1, personResultBefore.id());
         assertEquals("John", personResultBefore.name());
         assertEquals("john.doe@um.com", personResultBefore.email());
         assertEquals(1, personResultBefore.companyId());
         Person person = new Person(1, "Draco", "draco.malfoy@hogwarts.com", 1);
         yorm.save(person);
-        Person personResult = yorm.get(Person.class, 1);
+        Person personResult = yorm.find(Person.class, 1);
         assertEquals(1, personResult.id());
         assertEquals("Draco", personResult.name());
         assertEquals("draco.malfoy@hogwarts.com", personResult.email());
@@ -189,7 +189,7 @@ class YormTest {
     @Order(12)
     void delete() throws YormException {
         yorm.delete(Person.class, 1);
-        Person personResult = yorm.get(Person.class, 1);
+        Person personResult = yorm.find(Person.class, 1);
         assertNull(personResult);
     }
 }

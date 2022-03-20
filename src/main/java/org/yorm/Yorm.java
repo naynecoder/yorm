@@ -71,13 +71,13 @@ public class Yorm {
         }
     }
 
-    public <T extends Record> T get(Class<T> recordObject, int id) throws YormException {
+    public <T extends Record> T find(Class<T> recordObject, int id) throws YormException {
         String objectName = getClassName(recordObject);
         YormTable yormTable = map.computeIfAbsent(objectName, o -> mapBuilder.buildMap(recordObject));
         return queryBuilder.get(ds, yormTable, id);
     }
 
-    public <T extends Record> List<T> get(Class<T> referenceObject, Record filterObject) throws YormException {
+    public <T extends Record> List<T> find(Class<T> referenceObject, Record filterObject) throws YormException {
         String filterObjectName = getRecordName(filterObject);
         String referenceObjectName = getClassName(referenceObject);
         YormTable yormTableFilter = map.computeIfAbsent(filterObjectName, o -> mapBuilder.buildMap(filterObject.getClass()));
@@ -91,13 +91,13 @@ public class Yorm {
         return result;
     }
 
-    public <T extends Record> List<T> get(Class<T> referenceObject) throws YormException {
+    public <T extends Record> List<T> find(Class<T> referenceObject) throws YormException {
         String referenceObjectName = getClassName(referenceObject);
         YormTable yormTable = map.computeIfAbsent(referenceObjectName, o -> mapBuilder.buildMap(referenceObject));
         return queryBuilder.get(ds, yormTable);
     }
 
-    public <T extends Record> List<T> get(List<T> list) throws YormException {
+    public <T extends Record> List<T> find(List<T> list) throws YormException {
         List<T> result = new ArrayList<>();
         if (list.isEmpty()) {
             return result;

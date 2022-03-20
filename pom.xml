@@ -6,7 +6,7 @@
 
   <groupId>org.yorm</groupId>
   <artifactId>yorm</artifactId>
-  <version>0.0.1</version>
+  <version>0.0.2</version>
 
   <packaging>jar</packaging>
 
@@ -34,6 +34,7 @@
     <version.hikaricp>5.0.0</version.hikaricp>
     <version.mysql>8.0.27</version.mysql>
     <version.log4j>2.6.1</version.log4j>
+    <version.slf4j>2.7</version.slf4j>
     <version.testcontainers>1.16.2</version.testcontainers>
   </properties>
   <dependencies>
@@ -56,6 +57,11 @@
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-core</artifactId>
       <version>${version.log4j}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-slf4j-impl</artifactId>
+      <version>${version.slf4j}</version>
     </dependency>
     <!-- Test Dependencies -->
     <dependency>

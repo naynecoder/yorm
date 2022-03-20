@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import javax.sql.DataSource;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.yorm.db.operations.FilterPredicates;
 import org.yorm.exception.YormException;
 import org.yorm.util.DbType;
@@ -22,7 +22,7 @@ import org.yorm.util.Levenshtein;
 public class MapBuilder {
 
     DataSource ds;
-    private static Logger logger = LogManager.getLogger(MapBuilder.class);
+    private static Logger logger = LoggerFactory.getLogger(MapBuilder.class);
 
     public MapBuilder(DataSource ds) {
         this.ds = ds;
