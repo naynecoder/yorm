@@ -33,9 +33,11 @@
     <version.junit>5.8.2</version.junit>
     <version.hikaricp>5.0.0</version.hikaricp>
     <version.mysql>8.0.27</version.mysql>
-    <version.slf4j>2.7</version.slf4j>
+    <version.slf4j-api>1.7.36</version.slf4j-api>
+    <version.log4j-slf4j-impl>2.17.2</version.log4j-slf4j-impl>
     <version.testcontainers>1.16.2</version.testcontainers>
     <version.maven-surefire>3.0.0-M5</version.maven-surefire>
+    <version.log4j>2.17.2</version.log4j>
   </properties>
   <dependencies>
     <dependency>
@@ -49,9 +51,9 @@
       <version>${version.mysql}</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-slf4j-impl</artifactId>
-      <version>${version.slf4j}</version>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${version.slf4j-api}</version>
     </dependency>
     <!-- Test Dependencies -->
     <dependency>
@@ -69,6 +71,24 @@
       <groupId>org.testcontainers</groupId>
       <artifactId>mysql</artifactId>
       <version>${version.testcontainers}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-slf4j-impl</artifactId>
+      <version>${version.log4j-slf4j-impl}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-api</artifactId>
+      <version>${version.log4j}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <version>${version.log4j}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
