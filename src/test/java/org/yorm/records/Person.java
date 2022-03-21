@@ -1,5 +1,7 @@
 package org.yorm.records;
 
-public record Person(int id, String name, String email, int companyId) {
+import java.time.LocalDateTime;
+
+public record Person(int id, String name, String email, LocalDateTime lastLogin, int companyId) {
 
 }

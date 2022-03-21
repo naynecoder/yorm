@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.BeforeAll;
@@ -39,14 +40,21 @@ class YormTest {
         YormTable map = mp.buildMap(Person.class);
         assertNotNull(map);
         List<YormTuple> tuples = map.getTuples();
-        assertEquals(4, tuples.size());
+        assertEquals(5, tuples.size());
         YormTuple tuple0 = tuples.get(0);
         assertEquals("id", tuple0.dbFieldName());
         assertEquals(DbType.INT, tuple0.type());
         assertEquals("id", tuple0.method().getName());
         assertEquals("id", tuple0.objectName());
         assertEquals("PRI", tuple0.key());
-        YormTuple tuple4 = tuples.get(3);
+        YormTuple tuple3 = tuples.get(3);
+        assertEquals("last_login", tuple3.dbFieldName());
+        assertEquals(DbType.DATETIME, tuple3.type());
+        assertEquals("lastLogin", tuple3.method().getName());
+        assertEquals("lastLogin", tuple3.objectName());
+        assertEquals("last_login", tuple3.dbFieldName());
+        assertTrue(tuple3.key().isEmpty());
+        YormTuple tuple4 = tuples.get(4);
         assertEquals("company_id", tuple4.dbFieldName());
         assertEquals(DbType.INT, tuple0.type());
         assertEquals("companyId", tuple4.method().getName());
@@ -69,19 +77,20 @@ class YormTest {
     @Test
     @Order(3)
     void savePerson() throws YormException {
-        Person person = new Person(0, "John", "john.doe@um.com", 1);
+        Person person = new Person(0, "John", "john.doe@um.com", LocalDateTime.of(2022, 3, 22, 11, 14, 13), 1);
         int idPerson = yorm.save(person);
         assertEquals(1, idPerson);
-        Person personWrong = new Person(0, "John", "john.doe@um.com", 0);
+        Person personWrong = new Person(0, "John", "john.doe@um.com", LocalDateTime.of(2022, 1, 15, 7, 53, 21), 0);
         assertThrows(YormException.class, () -> yorm.save(personWrong));
     }
 
     @Test
     @Order(4)
     void saveListPersons() throws YormException {
-        Person person1 = new Person(2, "Hermione", "hermione.granger@hogwarts.com", 1);
-        Person person2 = new Person(3, "Harry", "harry.potter@hogwarts.com", 1);
-        Person person3 = new Person(4, "Sauron", "sauron@mordor.com", 2);
+        LocalDateTime localDateTime = LocalDateTime.now();
+        Person person1 = new Person(2, "Hermione", "hermione.granger@hogwarts.com", localDateTime, 1);
+        Person person2 = new Person(3, "Harry", "harry.potter@hogwarts.com", localDateTime, 1);
+        Person person3 = new Person(4, "Sauron", "sauron@mordor.com", localDateTime, 2);
         List<Person> list = List.of(person1, person2, person3);
         yorm.insert(list);
         List<Person> personList = yorm.find(Person.class);
@@ -147,8 +156,8 @@ class YormTest {
     @Test
     @Order(9)
     void getFiltering() throws YormException {
-        Person personFilter1 = new Person(0, "harry", "john", 0);
-        Person personFilter2 = new Person(0, null, null, 2);
+        Person personFilter1 = new Person(0, "harry", "john", null, 0);
+        Person personFilter2 = new Person(0, null, null, null, 2);
         List<Person> list = List.of(personFilter1, personFilter2);
         List<Person> personList = yorm.find(list);
         assertNotNull(personList);
@@ -163,7 +172,7 @@ class YormTest {
     @Test
     @Order(10)
     void getFilteringNoResults() throws YormException {
-        Person personFilter1 = new Person(0, "Peter", null, 0);
+        Person personFilter1 = new Person(0, "Peter", null, null, 0);
         List<Person> personList = yorm.find(List.of(personFilter1));
         assertTrue(personList.isEmpty());
     }
@@ -171,12 +180,13 @@ class YormTest {
     @Test
     @Order(11)
     void update() throws YormException {
+        LocalDateTime localDateTime = LocalDateTime.of(2022, 1, 12, 14, 32, 14);
         Person personResultBefore = yorm.find(Person.class, 1);
         assertEquals(1, personResultBefore.id());
         assertEquals("John", personResultBefore.name());
         assertEquals("john.doe@um.com", personResultBefore.email());
         assertEquals(1, personResultBefore.companyId());
-        Person person = new Person(1, "Draco", "draco.malfoy@hogwarts.com", 1);
+        Person person = new Person(1, "Draco", "draco.malfoy@hogwarts.com", localDateTime, 1);
         yorm.save(person);
         Person personResult = yorm.find(Person.class, 1);
         assertEquals(1, personResult.id());

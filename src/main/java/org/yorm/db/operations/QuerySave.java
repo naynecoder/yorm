@@ -143,8 +143,8 @@ public class QuerySave {
                 case DOUBLE -> preparedStatement.setDouble(paramIndex, (double) method.invoke(obj));
                 case FLOAT -> preparedStatement.setFloat(paramIndex, (float) method.invoke(obj));
                 case DECIMAL -> preparedStatement.setBigDecimal(paramIndex, (BigDecimal) method.invoke(obj));
-                case DATE, DATETIME -> preparedStatement.setDate(paramIndex, Date.valueOf((LocalDate) method.invoke(obj)));
-                case TIMESTAMP -> preparedStatement.setTimestamp(paramIndex, Timestamp.valueOf((LocalDateTime) method.invoke(obj)));
+                case DATE -> preparedStatement.setDate(paramIndex, Date.valueOf((LocalDate) method.invoke(obj)));
+                case DATETIME, TIMESTAMP -> preparedStatement.setTimestamp(paramIndex, Timestamp.valueOf((LocalDateTime) method.invoke(obj)));
                 default -> throw new YormException(String.format("Couldn't find type for %s", tuple.dbFieldName()));
             }
             paramIndex++;

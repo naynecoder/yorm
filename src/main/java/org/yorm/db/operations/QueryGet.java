@@ -127,8 +127,8 @@ public class QueryGet {
                     case DOUBLE -> preparedStatement.setDouble(paramIndex, (double) obj);
                     case FLOAT -> preparedStatement.setFloat(paramIndex, (float) obj);
                     case DECIMAL -> preparedStatement.setBigDecimal(paramIndex, (BigDecimal) obj);
-                    case DATE, DATETIME -> preparedStatement.setDate(paramIndex, Date.valueOf((LocalDate) obj));
-                    case TIMESTAMP -> preparedStatement.setTimestamp(paramIndex, Timestamp.valueOf((LocalDateTime) obj));
+                    case DATE -> preparedStatement.setDate(paramIndex, Date.valueOf((LocalDate) obj));
+                    case DATETIME, TIMESTAMP -> preparedStatement.setTimestamp(paramIndex, Timestamp.valueOf((LocalDateTime) obj));
                     default -> throw new YormException(String.format("Couldn't find type for %s", fieldValue.fieldName()));
                 }
                 paramIndex++;
@@ -179,11 +179,11 @@ public class QueryGet {
                     BigDecimal bb = rs.getBigDecimal(tableFieldName);
                     values[params++] = bb;
                     break;
-                case DATE, DATETIME:
+                case DATE:
                     Date date = rs.getDate(tableFieldName);
                     values[params++] = date.toLocalDate();
                     break;
-                case TIMESTAMP:
+                case TIMESTAMP, DATETIME:
                     Timestamp ts = rs.getTimestamp(tableFieldName);
                     values[params++] = ts.toLocalDateTime();
                     break;
