@@ -42,7 +42,7 @@ When a Java Record is operated with **Yorm**, a reflection inspection will came 
 - [MySql] - So far, the only database officially supported
 - [Junit 5] - For the unit tests
 - [TestContainers] - Also for the unit tests
-- [log4j] - Logging is usually useful
+- [Slf4j] - Logging is usually useful
 
 And that's it, the **Yorm** lies heavily on Java 17 Records and Reflections.
 
@@ -193,5 +193,5 @@ Apache 2.0
 [Mysql]: <https://https://www.mysql.com>
 [Junit 5]: <https://junit.org/junit5/>
 [TestContainers]: <https://www.testcontainers.org/>
-[log4j]: <https://logging.apache.org/log4j/2.x/>
+[Slf4j]: <https://www.slf4j.org/manual.html/>
    
