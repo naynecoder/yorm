@@ -30,7 +30,7 @@ public class Yorm {
         try {
             result = queryBuilder.save(ds, recordObj, yormTable);
         } catch (InvocationTargetException | IllegalAccessException e) {
-            throw new YormException(e.getMessage());
+            throw new YormException("Error while saving record:" + recordObj, e);
         }
         return result;
     }
@@ -38,13 +38,7 @@ public class Yorm {
     public int insert(Record recordObj) throws YormException {
         String objectName = getRecordName(recordObj);
         YormTable yormTable = map.computeIfAbsent(objectName, o -> mapBuilder.buildMap(recordObj.getClass()));
-        int result = 0;
-        try {
-            result = queryBuilder.insert(ds, recordObj, yormTable);
-        } catch (YormException e) {
-            throw new YormException(e.getMessage());
-        }
-        return result;
+        return queryBuilder.insert(ds, recordObj, yormTable);
     }
 
     public <T extends Record> void insert(List<T> recordListObj) throws YormException {
@@ -54,21 +48,14 @@ public class Yorm {
         Record recordObj = recordListObj.get(0);
         String objectName = getRecordName(recordObj);
         YormTable yormTable = map.computeIfAbsent(objectName, o -> mapBuilder.buildMap(recordObj.getClass()));
-        try {
-            queryBuilder.bulkInsert(ds, recordListObj, yormTable);
-        } catch (YormException e) {
-            throw new YormException(e.getMessage());
-        }
+        queryBuilder.bulkInsert(ds, recordListObj, yormTable);
+
     }
 
     public void update(Record recordObj) throws YormException {
         String objectName = getRecordName(recordObj);
         YormTable yormTable = map.computeIfAbsent(objectName, o -> mapBuilder.buildMap(recordObj.getClass()));
-        try {
-            queryBuilder.update(ds, recordObj, yormTable);
-        } catch (YormException e) {
-            throw new YormException(e.getMessage());
-        }
+        queryBuilder.update(ds, recordObj, yormTable);
     }
 
     public <T extends Record> T find(Class<T> recordObject, int id) throws YormException {
@@ -82,11 +69,11 @@ public class Yorm {
         String referenceObjectName = getClassName(referenceObject);
         YormTable yormTableFilter = map.computeIfAbsent(filterObjectName, o -> mapBuilder.buildMap(filterObject.getClass()));
         YormTable yormTableObject = map.computeIfAbsent(referenceObjectName, o -> mapBuilder.buildMap(referenceObject));
-        List<T> result = new ArrayList<>();
+        List<T> result;
         try {
             result = queryBuilder.get(ds, filterObject, yormTableFilter, yormTableObject);
         } catch (InvocationTargetException | IllegalAccessException | YormException e) {
-            throw new YormException(e.getMessage());
+            throw new YormException("Error while finding records with reference:" + referenceObject + " and filter:" + filterObject, e);
         }
         return result;
     }
@@ -108,7 +95,7 @@ public class Yorm {
         try {
             result = queryBuilder.get(ds, list, yormTable);
         } catch (InvocationTargetException | IllegalAccessException | YormException e) {
-            throw new YormException(e.getMessage());
+            throw new YormException("Error while finding records with list", e);
         }
         return result;
     }

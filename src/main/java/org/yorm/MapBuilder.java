@@ -50,7 +50,7 @@ public class MapBuilder {
             String objectField = findClosest(objectFields, description.fieldName());
             Optional<Method> methodOptional = methods.stream().filter(FilterPredicates.getMethod(objectField)).findFirst();
             if (methodOptional.isEmpty()) {
-                throw new YormException(String.format("Couldn't find method that matches field %s", objectField));
+                throw new YormException("Couldn't find method that matches field " + objectField);
             }
             var tuple = new YormTuple(description.fieldName(), objectField, DbType.getType(description.type()),
                 getSize(description.type()), getNullable(description.isNull()),

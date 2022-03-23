@@ -46,8 +46,8 @@ public class QuerySave {
                 paramIndex = populatePreparedStatement(tuples, paramIndex, preparedStatement, obj);
             }
             preparedStatement.executeUpdate();
-        } catch (SQLException | IllegalAccessException | YormException | InvocationTargetException e) {
-            throw new YormException(e.getMessage());
+        } catch (SQLException | IllegalAccessException | InvocationTargetException e) {
+            throw new YormException("Error while bulk inserting records:" + objList + " into table:" + yormTable.getDbTable(), e);
         }
     }
 
@@ -72,8 +72,8 @@ public class QuerySave {
             if (rs.next()) {
                 id = rs.getInt(1);
             }
-        } catch (SQLException | IllegalAccessException | YormException | InvocationTargetException e) {
-            throw new YormException(e.getMessage());
+        } catch (SQLException | IllegalAccessException | InvocationTargetException e) {
+            throw new YormException("Error while force inserting record:" + obj + " into table:" + yormTable.getDbTable(), e);
         }
         return id;
     }
@@ -100,8 +100,8 @@ public class QuerySave {
             if (rs.next()) {
                 id = rs.getInt(1);
             }
-        } catch (SQLException | InvocationTargetException | IllegalAccessException | YormException e) {
-            throw new YormException(e.getMessage());
+        } catch (SQLException | InvocationTargetException | IllegalAccessException e) {
+            throw new YormException("Error while inserting record:" + obj + " into table:" + yormTable.getDbTable(), e);
         }
         return id;
     }
@@ -126,8 +126,8 @@ public class QuerySave {
             populatePreparedStatement(tuples, paramIndex, preparedStatement, obj);
             populatePreparedStatement(keyTuples, tuples.size() + 1, preparedStatement, obj);
             preparedStatement.executeUpdate();
-        } catch (SQLException | IllegalAccessException | YormException | InvocationTargetException e) {
-            throw new YormException(e.getMessage());
+        } catch (SQLException | IllegalAccessException | InvocationTargetException e) {
+            throw new YormException("Error while updating record:" + obj + " in table:" + yormTable.getDbTable(), e);
         }
     }
 
@@ -145,7 +145,7 @@ public class QuerySave {
                 case DECIMAL -> preparedStatement.setBigDecimal(paramIndex, (BigDecimal) method.invoke(obj));
                 case DATE -> preparedStatement.setDate(paramIndex, Date.valueOf((LocalDate) method.invoke(obj)));
                 case DATETIME, TIMESTAMP -> preparedStatement.setTimestamp(paramIndex, Timestamp.valueOf((LocalDateTime) method.invoke(obj)));
-                default -> throw new YormException(String.format("Couldn't find type for %s", tuple.dbFieldName()));
+                default -> throw new YormException("Couldn't find type for " + tuple.dbFieldName());
             }
             paramIndex++;
         }

@@ -40,8 +40,8 @@ public class QueryGet {
                 loopResults(tuples, rs, values, params);
                 resultList.add((T) yormTable.getConstructor().newInstance(values));
             }
-        } catch (SQLException | InstantiationException | IllegalAccessException | InvocationTargetException | YormException e) {
-            throw new YormException(e.getMessage());
+        } catch (SQLException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            throw new YormException("Error while getting all records from table:" + yormTable.getDbTable(), e);
         }
         return resultList;
     }
@@ -66,8 +66,8 @@ public class QueryGet {
             }
 
 
-        } catch (SQLException | InstantiationException | IllegalAccessException | InvocationTargetException | YormException e) {
-            throw new YormException(e.getMessage());
+        } catch (SQLException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            throw new YormException("Error while getting record with id:" + id + " from table:" + yormTable.getDbTable(), e);
         }
         return (T) result;
     }
@@ -93,8 +93,8 @@ public class QueryGet {
             }
 
 
-        } catch (SQLException | InstantiationException | IllegalAccessException | InvocationTargetException | YormException e) {
-            throw new YormException(e.getMessage());
+        } catch (SQLException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            throw new YormException("Error while deleting record with foreign id:" + id + " from table:" + yormTable.getDbTable(), e);
         }
         return resultList;
     }
@@ -129,7 +129,7 @@ public class QueryGet {
                     case DECIMAL -> preparedStatement.setBigDecimal(paramIndex, (BigDecimal) obj);
                     case DATE -> preparedStatement.setDate(paramIndex, Date.valueOf((LocalDate) obj));
                     case DATETIME, TIMESTAMP -> preparedStatement.setTimestamp(paramIndex, Timestamp.valueOf((LocalDateTime) obj));
-                    default -> throw new YormException(String.format("Couldn't find type for %s", fieldValue.fieldName()));
+                    default -> throw new YormException("Couldn't find type for " + fieldValue.fieldName());
                 }
                 paramIndex++;
             }
@@ -141,8 +141,8 @@ public class QueryGet {
                 Object result = yormTable.getConstructor().newInstance(values);
                 resultList.add((T) result);
             }
-        } catch (SQLException | InstantiationException | IllegalAccessException | InvocationTargetException | YormException e) {
-            throw new YormException(e.getMessage());
+        } catch (SQLException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            throw new YormException("Error while filtering records with filtering list:" + filteringList + " from table:" + yormTable.getDbTable(), e);
         }
         return resultList;
     }
@@ -188,7 +188,7 @@ public class QueryGet {
                     values[params++] = ts.toLocalDateTime();
                     break;
                 default:
-                    throw new YormException(String.format("Couldn't find type for %s", tuple.dbFieldName()));
+                    throw new YormException("Couldn't find type for " + tuple.dbFieldName());
             }
         }
     }
