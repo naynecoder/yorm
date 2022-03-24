@@ -8,8 +8,8 @@ import java.util.List;
 public class YormTable {
 
     private String dbTable;
-    List<YormTuple> list = new ArrayList<>();
-    Constructor constructor;
+    private List<YormTuple> list = new ArrayList<>();
+    private Constructor<Record> constructor;
 
     public YormTable(String dbTable) {
         this.dbTable = dbTable;
@@ -27,11 +27,11 @@ public class YormTable {
         return dbTable;
     }
 
-    public Constructor getConstructor() {
+    public Constructor<Record> getConstructor() {
         return constructor;
     }
 
-    public void setConstructor(Constructor constructor) {
-        this.constructor = constructor;
+    public void setConstructor(Constructor<?> constructor) {
+        this.constructor = (Constructor<Record>) constructor;
     }
 }
