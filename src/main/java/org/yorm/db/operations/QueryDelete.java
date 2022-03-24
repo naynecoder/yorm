@@ -22,7 +22,7 @@ public class QueryDelete {
             preparedStatement.setInt(1, id);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            throw new YormException(e.getMessage());
+            throw new YormException("Error while deleting record with id:" + id + " from table:" + yormTable.getDbTable(), e);
         }
     }
 
