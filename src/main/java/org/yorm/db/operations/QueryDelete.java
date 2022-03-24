@@ -15,14 +15,14 @@ public class QueryDelete {
     public static void delete(DataSource ds, YormTable yormTable, int id) throws YormException {
         StringBuilder query = new StringBuilder("DELETE ");
         query.append(" FROM ")
-            .append(yormTable.getDbTable())
+            .append(yormTable.dbTable())
             .append(" WHERE id=?");
         try (Connection connection = ds.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(query.toString())) {
             preparedStatement.setInt(1, id);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            throw new YormException("Error while deleting record with id:" + id + " from table:" + yormTable.getDbTable(), e);
+            throw new YormException("Error while deleting record with id:" + id + " from table:" + yormTable.dbTable(), e);
         }
     }
 

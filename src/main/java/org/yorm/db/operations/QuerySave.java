@@ -26,9 +26,9 @@ public class QuerySave {
 
     public static <T extends Record> void bulkInsert(DataSource ds, List<T> objList, YormTable yormTable) throws YormException {
         String op = "?,";
-        List<YormTuple> tuples = yormTable.getTuples();
+        List<YormTuple> tuples = yormTable.tuples();
         StringBuilder query = new StringBuilder("INSERT INTO ");
-        query.append(yormTable.getDbTable())
+        query.append(yormTable.dbTable())
             .append(" (")
             .append(String.join(",", tuples.stream().map(YormTuple::dbFieldName).toList()))
             .append(") VALUES ");
@@ -47,16 +47,16 @@ public class QuerySave {
             }
             preparedStatement.executeUpdate();
         } catch (SQLException | IllegalAccessException | InvocationTargetException e) {
-            throw new YormException("Error while bulk inserting records:" + objList + " into table:" + yormTable.getDbTable(), e);
+            throw new YormException("Error while bulk inserting records:" + objList + " into table:" + yormTable.dbTable(), e);
         }
     }
 
     public static int forceInsert(DataSource ds, Record obj, YormTable yormTable) throws YormException {
         String op = "?,";
         int id = 0;
-        List<YormTuple> tuples = yormTable.getTuples();
+        List<YormTuple> tuples = yormTable.tuples();
         StringBuilder query = new StringBuilder("INSERT INTO ");
-        query.append(yormTable.getDbTable())
+        query.append(yormTable.dbTable())
             .append(" (")
             .append(String.join(",", tuples.stream().map(YormTuple::dbFieldName).toList()))
             .append(") VALUES (")
@@ -73,7 +73,7 @@ public class QuerySave {
                 id = rs.getInt(1);
             }
         } catch (SQLException | IllegalAccessException | InvocationTargetException e) {
-            throw new YormException("Error while force inserting record:" + obj + " into table:" + yormTable.getDbTable(), e);
+            throw new YormException("Error while force inserting record:" + obj + " into table:" + yormTable.dbTable(), e);
         }
         return id;
     }
@@ -82,9 +82,9 @@ public class QuerySave {
         String op = "?,";
         int id = 0;
         Predicate<YormTuple> predicateFilterOutPrimaryKeys = FilterPredicates.filterOutPrimaryKeys();
-        List<YormTuple> tuples = yormTable.getTuples().stream().filter(predicateFilterOutPrimaryKeys).toList();
+        List<YormTuple> tuples = yormTable.tuples().stream().filter(predicateFilterOutPrimaryKeys).toList();
         StringBuilder query = new StringBuilder("INSERT INTO ");
-        query.append(yormTable.getDbTable())
+        query.append(yormTable.dbTable())
             .append(" (")
             .append(String.join(",", tuples.stream().map(YormTuple::dbFieldName).toList()))
             .append(") VALUES (")
@@ -101,7 +101,7 @@ public class QuerySave {
                 id = rs.getInt(1);
             }
         } catch (SQLException | InvocationTargetException | IllegalAccessException e) {
-            throw new YormException("Error while inserting record:" + obj + " into table:" + yormTable.getDbTable(), e);
+            throw new YormException("Error while inserting record:" + obj + " into table:" + yormTable.dbTable(), e);
         }
         return id;
     }
@@ -109,11 +109,11 @@ public class QuerySave {
     public static void update(DataSource ds, Record obj, YormTable yormTable) throws YormException {
         String op = " = ?,";
         String op2 = "=? AND ";
-        List<YormTuple> tuples = yormTable.getTuples();
+        List<YormTuple> tuples = yormTable.tuples();
         Predicate<YormTuple> predicateFilterKeepKeys = FilterPredicates.filterKeepKeys();
         List<YormTuple> keyTuples = tuples.stream().filter(predicateFilterKeepKeys).toList();
         StringBuilder query = new StringBuilder("UPDATE ");
-        query.append(yormTable.getDbTable())
+        query.append(yormTable.dbTable())
             .append(" SET ")
             .append(String.join(op, tuples.stream().map(YormTuple::dbFieldName).toList()))
             .append("=?");
@@ -127,7 +127,7 @@ public class QuerySave {
             populatePreparedStatement(keyTuples, tuples.size() + 1, preparedStatement, obj);
             preparedStatement.executeUpdate();
         } catch (SQLException | IllegalAccessException | InvocationTargetException e) {
-            throw new YormException("Error while updating record:" + obj + " in table:" + yormTable.getDbTable(), e);
+            throw new YormException("Error while updating record:" + obj + " in table:" + yormTable.dbTable(), e);
         }
     }
 

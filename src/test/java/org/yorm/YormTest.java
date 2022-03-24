@@ -39,7 +39,7 @@ class YormTest {
         MapBuilder mp = new MapBuilder(ds);
         YormTable map = mp.buildMap(Person.class);
         assertNotNull(map);
-        List<YormTuple> tuples = map.getTuples();
+        List<YormTuple> tuples = map.tuples();
         assertEquals(5, tuples.size());
         YormTuple tuple0 = tuples.get(0);
         assertEquals("id", tuple0.dbFieldName());
