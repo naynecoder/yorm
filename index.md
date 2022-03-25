@@ -42,7 +42,7 @@ When a Java Record is operated with **Yorm**, a reflection inspection will came 
 - [MySql] - So far, the only database officially supported
 - [Junit 5] - For the unit tests
 - [TestContainers] - Also for the unit tests
-- [log4j] - Logging is usually useful
+- [Slf4j] - Logging is usually useful
 
 And that's it, the **Yorm** lies heavily on Java 17 Records and Reflections.
 
@@ -170,7 +170,18 @@ DataSource ds = DbConnector.getDatasource(parameters);
     Yorm yorm = new Yorm(ds);
 ```
 **Yorm** is very young but nevertheless quite useful if you just want to perform basic CRUD operations, specially the ones that involve REST endpoints in the world of microservices. It's very to useful, and very transparent, since you just need a DataSource to put it to work.
-(optional) Third:
+
+#### Use it with Maven
+You can easily add Yorm to your project with
+
+```xml
+<dependency>
+    <groupId>org.yorm</groupId>
+    <artifactId>yorm</artifactId>
+    <version>0.0.1</version>
+</dependency>
+```
+
 
 #### Building from source
 
@@ -193,5 +204,5 @@ Apache 2.0
 [Mysql]: <https://https://www.mysql.com>
 [Junit 5]: <https://junit.org/junit5/>
 [TestContainers]: <https://www.testcontainers.org/>
-[log4j]: <https://logging.apache.org/log4j/2.x/>
+[Slf4j]: <https://www.slf4j.org/manual.html/>
    
