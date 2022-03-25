@@ -83,7 +83,7 @@ INSERT INTO person (name, email, company_id) VALUES ("John", "john.doe@um.com", 
 We might need to insert the object with its id, there is no problem:
 ```java
 Person person = new Person(2, "Mark", "mark.doe@um.com", 1);
-        int idPerson = yorm.insert(person);
+    int idPerson = yorm.insert(person);
 ```
 This operation will be automatically translated into
 ```sql
@@ -94,7 +94,7 @@ The update operation follows the same pattern. Please bear in mind that Records 
 create a new one, and the id will be used to detect that it's an update operation:
 ```java
 Person person = new Person(2, "Jacob", "jacob.doe@um.com", 1);
-        yorm.save(person);
+    yorm.save(person);
 ```
 Whose equivalent SQL would be:
 ```sql
@@ -104,28 +104,28 @@ Why is using company_id here? Well, it looks like a candidate to be a foreign ke
 ```sql
 CREATE TABLE company
 (
-   id            INT(10) AUTO_INCREMENT PRIMARY KEY NOT NULL,
-   name          VARCHAR(20) NOT NULL,
-   country_code  VARCHAR(2)  NOT NULL,
-   creation_date DATE        NOT NULL,
-   is_active     TINYINT     NOT NULL
+    id            INT(10) AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    name          VARCHAR(20) NOT NULL,
+    country_code  VARCHAR(2)  NOT NULL,
+    creation_date DATE        NOT NULL,
+    is_active     TINYINT     NOT NULL
 );
 
 ALTER TABLE `person`
-   ADD CONSTRAINT `person_id` FOREIGN KEY (`company_id`) REFERENCES `company` (`id`) ON DELETE CASCADE;
+    ADD CONSTRAINT `person_id` FOREIGN KEY (`company_id`) REFERENCES `company` (`id`) ON DELETE CASCADE;
 ```
 **Yorm** will detect that there is one Primary Key and a Multiple Key, and use them for the update. Nevertheless, **Yorm** also allows the update operation:
 ```java
 Person person = new Person(2, "Jacob", "jacob.doe@um.com", 1);
-yorm.update(person);
+    yorm.update(person);
 ```
 Insertion can even be massive:
 ```java
 Person person1 = new Person(2, "Hermione", "hermione.granger@hogwarts.com", 1);
-Person person2 = new Person(3, "Harry", "harry.potter@hogwarts.com", 1);
-Person person3 = new Person(4, "Sauron", "sauron@mordor.com", 2);
-List<Person> list = List.of(person1, person2, person3);
-yorm.insert(list);
+    Person person2 = new Person(3, "Harry", "harry.potter@hogwarts.com", 1);
+    Person person3 = new Person(4, "Sauron", "sauron@mordor.com", 2);
+    List<Person> list = List.of(person1, person2, person3);
+    yorm.insert(list);
 ```
 We've inserted and updated elements in the table. How can we retrieve them into Records? The first and easiest way would be retrieving all the elements. It's just one line:
 ```java
@@ -147,7 +147,7 @@ SELECT id, name, email, company_id FROM person WHERE id=1
 Or even retrieve elements with a foreign key:
 ```java
 Company company = new Company(1, null, null, null, false);
-List<Person> personList = yorm.find(Person.class, company);
+    List<Person> personList = yorm.find(Person.class, company);
 ```
 Pay attention how the Record company, with id 1, is used to retrieve a list of objects Person whose company_id is 1. **Yorm** will detect that Person has a foreign key with Company and use that to build the query:
 ```sql
@@ -156,9 +156,9 @@ SELECT id, name, email, company_id FROM person WHERE company_id=1
 Some kinds of filtering is also allowed:
 ```java
 Person personFilter1 = new Person(0, "harry", "john", 0);
-Person personFilter2 = new Person(0, null, null, 2);
-List<Person> list = List.of(personFilter1, personFilter2);
-List<Person> personList = yorm.find(list);
+    Person personFilter2 = new Person(0, null, null, 2);
+    List<Person> list = List.of(personFilter1, personFilter2);
+    List<Person> personList = yorm.find(list);
 ```
 Let's review this one a bit. **Yorm** deals with Records. Here we have defined two Person records, the first one with some information on *name* and *email*, and the second one with a *company_id*. **Yorm** will ignore all the nulls and 0s on fields that are ids, but use the rest of the information to build a SELECT query and retrieve a List of Person Records:
 ```sql
@@ -170,7 +170,18 @@ DataSource ds = DbConnector.getDatasource(parameters);
     Yorm yorm = new Yorm(ds);
 ```
 **Yorm** is very young but nevertheless quite useful if you just want to perform basic CRUD operations, specially the ones that involve REST endpoints in the world of microservices. It's very to useful, and very transparent, since you just need a DataSource to put it to work.
-(optional) Third:
+
+#### Use it with Maven
+You can easily add Yorm to your project with
+
+```xml
+<dependency>
+    <groupId>org.yorm</groupId>
+    <artifactId>yorm</artifactId>
+    <version>0.0.1</version>
+</dependency>
+```
+
 
 #### Building from source
 
