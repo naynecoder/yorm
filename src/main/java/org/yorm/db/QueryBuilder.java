@@ -10,7 +10,7 @@ import org.yorm.YormTable;
 import org.yorm.YormTuple;
 import org.yorm.db.operations.FilterPredicates;
 import org.yorm.db.operations.QueryDelete;
-import org.yorm.db.operations.QueryGet;
+import org.yorm.db.operations.QueryFind;
 import org.yorm.db.operations.QuerySave;
 import org.yorm.db.operations.WhereOperator;
 import org.yorm.exception.YormException;
@@ -58,7 +58,7 @@ public class QueryBuilder {
     }
 
     public <T extends Record> T get(DataSource ds, YormTable yormTable, int id) throws YormException {
-        return QueryGet.getById(ds, yormTable, id);
+        return QueryFind.findById(ds, yormTable, id);
     }
 
     public <T extends Record> List<T> get(DataSource ds, Record filterObject, YormTable yormTableFilter, YormTable yormTableObject)
@@ -79,16 +79,16 @@ public class QueryBuilder {
             return new ArrayList<>();
         }
         int id = (int) optionalFilteringTupleId.get().method().invoke(filterObject);
-        return QueryGet.getByForeignId(ds, yormTableObject, foreignKey, id);
+        return QueryFind.findByForeignId(ds, yormTableObject, foreignKey, id);
     }
 
     public <T extends Record> List<T> get(DataSource ds, YormTable yormTable) throws YormException {
-        return QueryGet.getAll(ds, yormTable);
+        return QueryFind.findAll(ds, yormTable);
     }
 
     public <T extends Record> List<T> get(DataSource ds, List<T> list, YormTable yormTable) throws InvocationTargetException, IllegalAccessException, YormException {
         List<FieldValue> fieldValueList = getFieldValues(list, yormTable);
-        return QueryGet.getFiltering(ds, yormTable, fieldValueList);
+        return QueryFind.findFiltering(ds, yormTable, fieldValueList);
     }
 
     private <T extends Record> List<FieldValue> getFieldValues(List<T> list, YormTable yormTable) throws IllegalAccessException, InvocationTargetException {

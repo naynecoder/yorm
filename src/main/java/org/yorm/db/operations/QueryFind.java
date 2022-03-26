@@ -19,12 +19,12 @@ import org.yorm.db.FieldValue;
 import org.yorm.exception.YormException;
 import org.yorm.util.DbType;
 
-public class QueryGet {
+public class QueryFind {
 
-    private QueryGet() {
+    private QueryFind() {
     }
 
-    public static <T extends Record> List<T> getAll(DataSource ds, YormTable yormTable) throws YormException {
+    public static <T extends Record> List<T> findAll(DataSource ds, YormTable yormTable) throws YormException {
         List<YormTuple> tuples = yormTable.tuples();
         StringBuilder query = new StringBuilder("SELECT ");
         List<T> resultList = new ArrayList<>();
@@ -46,7 +46,7 @@ public class QueryGet {
         return resultList;
     }
 
-    public static <T extends Record> T getById(DataSource ds, YormTable yormTable, int id) throws YormException {
+    public static <T extends Record> T findById(DataSource ds, YormTable yormTable, int id) throws YormException {
         List<YormTuple> tuples = yormTable.tuples();
         StringBuilder query = new StringBuilder("SELECT ");
         Object result = null;
@@ -72,7 +72,7 @@ public class QueryGet {
         return (T) result;
     }
 
-    public static <T extends Record> List<T> getByForeignId(DataSource ds, YormTable yormTable, String fieldName, int id) throws YormException {
+    public static <T extends Record> List<T> findByForeignId(DataSource ds, YormTable yormTable, String fieldName, int id) throws YormException {
         List<T> resultList = new ArrayList<>();
         List<YormTuple> tuples = yormTable.tuples();
         StringBuilder query = new StringBuilder("SELECT ");
@@ -99,7 +99,7 @@ public class QueryGet {
         return resultList;
     }
 
-    public static <T extends Record> List<T> getFiltering(DataSource ds, YormTable yormTable, List<FieldValue> filteringList) throws YormException {
+    public static <T extends Record> List<T> findFiltering(DataSource ds, YormTable yormTable, List<FieldValue> filteringList) throws YormException {
         String op = " ? OR";
         List<T> resultList = new ArrayList<>();
         List<YormTuple> tuples = yormTable.tuples();
