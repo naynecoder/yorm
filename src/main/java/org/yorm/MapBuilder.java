@@ -24,7 +24,7 @@ import org.yorm.util.Levenshtein;
 
 public class MapBuilder {
 
-    DataSource ds;
+    private final DataSource ds;
     private static Logger logger = LoggerFactory.getLogger(MapBuilder.class);
 
     public MapBuilder(DataSource ds) {
@@ -36,16 +36,16 @@ public class MapBuilder {
         Field[] objectFields = recordObject.getDeclaredFields();
         List<Method> methods = Arrays.asList(recordObject.getMethods());
         String query = "DESCRIBE " + recordName;
-        List<YormTuple> tuples = new ArrayList<>();
+        List<YormTuple> tuples;
         try (Connection connection = ds.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             List<Description> descriptionList = getDescription(preparedStatement);
             tuples = populateMap(objectFields, descriptionList, methods);
         } catch (SQLException | YormException e) {
             logger.error(e.getMessage());
-            throw new YormException("Error mapping record " + recordName);
+            throw new YormException("Error mapping record " + recordName, e);
         }
-        return new YormTable(recordName, tuples, (Constructor<Record>) recordObject.getConstructors()[0], concatenateFieldNames(tuples));
+        return new YormTable(recordName, tuples, (Constructor<Record>) recordObject.getConstructors()[0]);
     }
 
     private List<YormTuple> populateMap(Field[] objectFields, List<Description> descriptionList, List<Method> methods) throws YormException {
@@ -121,8 +121,5 @@ public class MapBuilder {
         return isNull.toLowerCase(Locale.ROOT).contains("null");
     }
 
-    private String concatenateFieldNames(List<YormTuple> tuples) {
-        return String.join(",", tuples.stream().map(YormTuple::dbFieldName).toList());
-    }
 }
 
