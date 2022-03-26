@@ -12,10 +12,10 @@ import org.yorm.exception.YormException;
 
 public class Yorm {
 
-    private Map<String, YormTable> map = new HashMap<>();
-    private MapBuilder mapBuilder;
-    private QueryBuilder queryBuilder;
-    private DataSource ds;
+    private final Map<String, YormTable> map = new HashMap<>();
+    private final MapBuilder mapBuilder;
+    private final QueryBuilder queryBuilder;
+    private final DataSource ds;
 
     public Yorm(DataSource ds) {
         this.ds = ds;
