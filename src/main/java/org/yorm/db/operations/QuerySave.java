@@ -30,7 +30,7 @@ public class QuerySave {
         StringBuilder query = new StringBuilder("INSERT INTO ");
         query.append(yormTable.dbTable())
             .append(" (")
-            .append(String.join(",", tuples.stream().map(YormTuple::dbFieldName).toList()))
+            .append(yormTable.concatenatedFieldNames())
             .append(") VALUES ");
         String operands = op.repeat(tuples.size());
         operands = operands.substring(0, operands.length() - 1);
@@ -58,7 +58,7 @@ public class QuerySave {
         StringBuilder query = new StringBuilder("INSERT INTO ");
         query.append(yormTable.dbTable())
             .append(" (")
-            .append(String.join(",", tuples.stream().map(YormTuple::dbFieldName).toList()))
+            .append(yormTable.concatenatedFieldNames())
             .append(") VALUES (")
             .append(op.repeat(tuples.size()));
         query.deleteCharAt(query.length() - 1);

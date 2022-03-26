@@ -45,7 +45,7 @@ public class MapBuilder {
             logger.error(e.getMessage());
             throw new YormException("Error mapping record " + recordName);
         }
-        return new YormTable(recordName, tuples, (Constructor<Record>) recordObject.getConstructors()[0]);
+        return new YormTable(recordName, tuples, (Constructor<Record>) recordObject.getConstructors()[0], concatenateFieldNames(tuples));
     }
 
     private List<YormTuple> populateMap(Field[] objectFields, List<Description> descriptionList, List<Method> methods) throws YormException {
@@ -119,6 +119,10 @@ public class MapBuilder {
 
     private boolean getNullable(String isNull) {
         return isNull.toLowerCase(Locale.ROOT).contains("null");
+    }
+
+    private String concatenateFieldNames(List<YormTuple> tuples) {
+        return String.join(",", tuples.stream().map(YormTuple::dbFieldName).toList());
     }
 }
 

@@ -28,7 +28,7 @@ public class QueryFind {
         List<YormTuple> tuples = yormTable.tuples();
         StringBuilder query = new StringBuilder("SELECT ");
         List<T> resultList = new ArrayList<>();
-        query.append(String.join(",", tuples.stream().map(YormTuple::dbFieldName).toList()))
+        query.append(yormTable.concatenatedFieldNames())
             .append(" FROM ")
             .append(yormTable.dbTable());
         try (Connection connection = ds.getConnection();
@@ -50,7 +50,7 @@ public class QueryFind {
         List<YormTuple> tuples = yormTable.tuples();
         StringBuilder query = new StringBuilder("SELECT ");
         Object result = null;
-        query.append(String.join(",", tuples.stream().map(YormTuple::dbFieldName).toList()))
+        query.append(yormTable.concatenatedFieldNames())
             .append(" FROM ")
             .append(yormTable.dbTable())
             .append(" WHERE id=?");
@@ -76,7 +76,7 @@ public class QueryFind {
         List<T> resultList = new ArrayList<>();
         List<YormTuple> tuples = yormTable.tuples();
         StringBuilder query = new StringBuilder("SELECT ");
-        query.append(String.join(",", tuples.stream().map(YormTuple::dbFieldName).toList()))
+        query.append(yormTable.concatenatedFieldNames())
             .append(" FROM ")
             .append(yormTable.dbTable())
             .append(" WHERE " + fieldName + "=?");
@@ -104,7 +104,7 @@ public class QueryFind {
         List<T> resultList = new ArrayList<>();
         List<YormTuple> tuples = yormTable.tuples();
         StringBuilder query = new StringBuilder("SELECT ");
-        query.append(String.join(",", tuples.stream().map(YormTuple::dbFieldName).toList()))
+        query.append(yormTable.concatenatedFieldNames())
             .append(" FROM ")
             .append(yormTable.dbTable());
         if (!filteringList.isEmpty()) {
