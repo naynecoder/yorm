@@ -35,7 +35,7 @@ class PerformanceTest {
 
     @Test
     void testPerformance() throws YormException {
-        Company company = new Company(1, "randomString", "ZZ", LocalDate.now(), true);
+        Company company = new Company(1, "randomString", "ZZ", LocalDate.now(), 0,true);
         yorm.insert(company);
         List<Long> metricsInsertingYorm = new ArrayList<>();
         List<Long> metricsFindingYorm = new ArrayList<>();

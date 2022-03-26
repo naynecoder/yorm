@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.yorm.exception.YormException;
 import org.yorm.records.Company;
+import org.yorm.records.Invoice;
 import org.yorm.records.Person;
 import org.yorm.util.DbType;
 import org.yorm.utils.TestConnectionFactory;
@@ -35,7 +36,7 @@ class YormTest {
 
     @Test
     @Order(1)
-    void buildMap() {
+    void buildMap() throws YormException {
         MapBuilder mp = new MapBuilder(ds);
         YormTable map = mp.buildMap(Person.class);
         assertNotNull(map);
@@ -66,16 +67,28 @@ class YormTest {
     @Test
     @Order(2)
     void saveCompany() throws YormException {
-        Company company = new Company(0, "Hogwarts", "GB", LocalDate.of(1968, 2, 12), true);
+        Company company = new Company(0, "Hogwarts", "GB", LocalDate.of(1968, 2, 12), 154.1f, true);
         int id = yorm.save(company);
         assertEquals(1, id);
-        Company company2 = new Company(0, "Mordor", "ZZ", LocalDate.of(114, 11, 5), false);
-        int id2 = yorm.save(company);
+        Company company2 = new Company(0, "Mordor", "ZZ", LocalDate.of(114, 11, 5), 0f, false);
+        int id2 = yorm.save(company2);
         assertEquals(2, id2);
     }
 
     @Test
     @Order(3)
+    void getCompany() throws YormException {
+        Company company = yorm.find(Company.class, 1);
+        assertEquals("GB", company.countryCode());
+        assertEquals("Hogwarts", company.name());
+        assertEquals(LocalDate.of(1968, 2, 12), company.date());
+        assertEquals(154.1f, company.debt());
+        assertTrue(company.isActive());
+
+    }
+
+    @Test
+    @Order(4)
     void savePerson() throws YormException {
         Person person = new Person(0, "John", "john.doe@um.com", LocalDateTime.of(2022, 3, 22, 11, 14, 13), 1);
         int idPerson = yorm.save(person);
@@ -85,7 +98,7 @@ class YormTest {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     void saveListPersons() throws YormException {
         LocalDateTime localDateTime = LocalDateTime.now();
         Person person1 = new Person(2, "Hermione", "hermione.granger@hogwarts.com", localDateTime, 1);
@@ -96,16 +109,6 @@ class YormTest {
         List<Person> personList = yorm.find(Person.class);
         assertNotNull(personList);
         assertEquals(4, personList.size());
-    }
-
-    @Test
-    @Order(5)
-    void getCompany() throws YormException {
-        Company company = yorm.find(Company.class, 1);
-        assertEquals("GB", company.countryCode());
-        assertEquals("Hogwarts", company.name());
-        assertEquals(LocalDate.of(1968, 2, 12), company.date());
-        assertTrue(company.isActive());
     }
 
     @Test
@@ -136,7 +139,7 @@ class YormTest {
     @Test
     @Order(8)
     void getWithForeignKey() throws YormException {
-        Company company = new Company(1, null, null, null, false);
+        Company company = new Company(1, null, null, null, 0, false);
         List<Person> personList = yorm.find(Person.class, company);
         assertNotNull(personList);
         assertEquals(3, personList.size());
@@ -144,7 +147,7 @@ class YormTest {
         assertEquals("Hermione", person2.name());
         assertEquals("hermione.granger@hogwarts.com", person2.email());
         assertEquals(1, person2.companyId());
-        List<Person> personList2 = yorm.find(Person.class, new Company(2, null, null, null, false));
+        List<Person> personList2 = yorm.find(Person.class, new Company(2, null, null, null, 0, false));
         assertNotNull(personList2);
         assertEquals(1, personList2.size());
         Person person1 = personList2.get(0);
@@ -201,5 +204,12 @@ class YormTest {
         yorm.delete(Person.class, 1);
         Person personResult = yorm.find(Person.class, 1);
         assertNull(personResult);
+    }
+
+    @Test
+    @Order(13)
+    void mapWrongRecord() {
+        Invoice invoice = new Invoice(1, 1);
+        assertThrows(YormException.class, () -> yorm.insert(invoice));
     }
 }

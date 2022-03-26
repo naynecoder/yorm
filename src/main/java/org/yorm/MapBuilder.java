@@ -9,9 +9,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +31,7 @@ public class MapBuilder {
         this.ds = ds;
     }
 
-    public <T extends Record> YormTable buildMap(Class<T> recordObject) {
+    public <T extends Record> YormTable buildMap(Class<T> recordObject) throws YormException {
         String recordName = recordObject.getSimpleName().toLowerCase(Locale.ROOT);
         Field[] objectFields = recordObject.getDeclaredFields();
         List<Method> methods = Arrays.asList(recordObject.getMethods());
@@ -41,18 +43,24 @@ public class MapBuilder {
             tuples = populateMap(objectFields, descriptionList, methods);
         } catch (SQLException | YormException e) {
             logger.error(e.getMessage());
+            throw new YormException("Error mapping record " + recordName);
         }
         return new YormTable(recordName, tuples, (Constructor<Record>) recordObject.getConstructors()[0]);
     }
 
     private List<YormTuple> populateMap(Field[] objectFields, List<Description> descriptionList, List<Method> methods) throws YormException {
         List<YormTuple> tuples = new ArrayList<>();
+        Set<String> alreadyUsedObjectFields = new HashSet<>();
         for (Description description : descriptionList) {
             String objectField = findClosest(objectFields, description.fieldName());
+            if (alreadyUsedObjectFields.contains(objectField)) {
+                throw new YormException("Mismatch mapping methods to database with field " + description.fieldName());
+            }
             Optional<Method> methodOptional = methods.stream().filter(FilterPredicates.getMethod(objectField)).findFirst();
             if (methodOptional.isEmpty()) {
-                throw new YormException("Couldn't find method that matches field " + objectField);
+                throw new YormException("Couldn't find method that matches object field " + objectField);
             }
+            alreadyUsedObjectFields.add(objectField);
             var tuple = new YormTuple(description.fieldName(), objectField, DbType.getType(description.type()),
                 getSize(description.type()), getNullable(description.isNull()),
                 description.key(), description.defaultValue(), description.extra(), methodOptional.get());

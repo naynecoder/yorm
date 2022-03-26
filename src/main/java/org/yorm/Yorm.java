@@ -25,7 +25,7 @@ public class Yorm {
 
     public int save(Record recordObj) throws YormException {
         String objectName = getRecordName(recordObj);
-        YormTable yormTable = map.computeIfAbsent(objectName, o -> mapBuilder.buildMap(recordObj.getClass()));
+        YormTable yormTable = getTable(objectName, recordObj.getClass());
         int result = 0;
         try {
             result = queryBuilder.save(ds, recordObj, yormTable);
@@ -37,7 +37,7 @@ public class Yorm {
 
     public int insert(Record recordObj) throws YormException {
         String objectName = getRecordName(recordObj);
-        YormTable yormTable = map.computeIfAbsent(objectName, o -> mapBuilder.buildMap(recordObj.getClass()));
+        YormTable yormTable = getTable(objectName, recordObj.getClass());
         return queryBuilder.insert(ds, recordObj, yormTable);
     }
 
@@ -47,28 +47,28 @@ public class Yorm {
         }
         Record recordObj = recordListObj.get(0);
         String objectName = getRecordName(recordObj);
-        YormTable yormTable = map.computeIfAbsent(objectName, o -> mapBuilder.buildMap(recordObj.getClass()));
+        YormTable yormTable = getTable(objectName, recordObj.getClass());
         queryBuilder.bulkInsert(ds, recordListObj, yormTable);
 
     }
 
     public void update(Record recordObj) throws YormException {
         String objectName = getRecordName(recordObj);
-        YormTable yormTable = map.computeIfAbsent(objectName, o -> mapBuilder.buildMap(recordObj.getClass()));
+        YormTable yormTable = getTable(objectName, recordObj.getClass());
         queryBuilder.update(ds, recordObj, yormTable);
     }
 
     public <T extends Record> T find(Class<T> recordObject, int id) throws YormException {
         String objectName = getClassName(recordObject);
-        YormTable yormTable = map.computeIfAbsent(objectName, o -> mapBuilder.buildMap(recordObject));
+        YormTable yormTable = getTable(objectName, recordObject);
         return queryBuilder.get(ds, yormTable, id);
     }
 
     public <T extends Record> List<T> find(Class<T> referenceObject, Record filterObject) throws YormException {
         String filterObjectName = getRecordName(filterObject);
         String referenceObjectName = getClassName(referenceObject);
-        YormTable yormTableFilter = map.computeIfAbsent(filterObjectName, o -> mapBuilder.buildMap(filterObject.getClass()));
-        YormTable yormTableObject = map.computeIfAbsent(referenceObjectName, o -> mapBuilder.buildMap(referenceObject));
+        YormTable yormTableFilter = getTable(filterObjectName, filterObject.getClass());
+        YormTable yormTableObject = getTable(referenceObjectName, referenceObject);
         List<T> result;
         try {
             result = queryBuilder.get(ds, filterObject, yormTableFilter, yormTableObject);
@@ -80,7 +80,7 @@ public class Yorm {
 
     public <T extends Record> List<T> find(Class<T> referenceObject) throws YormException {
         String referenceObjectName = getClassName(referenceObject);
-        YormTable yormTable = map.computeIfAbsent(referenceObjectName, o -> mapBuilder.buildMap(referenceObject));
+        YormTable yormTable = getTable(referenceObjectName, referenceObject);
         return queryBuilder.get(ds, yormTable);
     }
 
@@ -91,7 +91,7 @@ public class Yorm {
         }
         Record recordObj = list.get(0);
         String objectName = getRecordName(recordObj);
-        YormTable yormTable = map.computeIfAbsent(objectName, o -> mapBuilder.buildMap(recordObj.getClass()));
+        YormTable yormTable = getTable(objectName, recordObj.getClass());
         try {
             result = queryBuilder.get(ds, list, yormTable);
         } catch (InvocationTargetException | IllegalAccessException | YormException e) {
@@ -110,8 +110,17 @@ public class Yorm {
 
     public <T extends Record> void delete(Class<T> recordObject, int id) throws YormException {
         String objectName = getClassName(recordObject);
-        YormTable yormTable = map.computeIfAbsent(objectName, o -> mapBuilder.buildMap(recordObject));
+        YormTable yormTable = getTable(objectName, recordObject);
         queryBuilder.delete(ds, yormTable, id);
+    }
+
+    private <T extends Record> YormTable getTable(String objectName, Class<T> recordObject) throws YormException {
+        YormTable yormTable = map.get(objectName);
+        if (yormTable == null) {
+            yormTable = mapBuilder.buildMap(recordObject);
+        }
+        map.put(objectName, yormTable);
+        return yormTable;
     }
 
 }
