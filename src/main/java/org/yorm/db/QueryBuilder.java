@@ -37,7 +37,7 @@ public class QueryBuilder {
     }
 
     public int save(DataSource ds, Record obj, YormTable yormTable) throws InvocationTargetException, IllegalAccessException, YormException {
-        Optional<YormTuple> idField = yormTable.getTuples().stream().filter(FilterPredicates.filterAutoIncrementKey()).findFirst();
+        Optional<YormTuple> idField = yormTable.tuples().stream().filter(FilterPredicates.filterAutoIncrementKey()).findFirst();
         int idInsert = 0;
         if (idField.isEmpty()) {
             idInsert = QuerySave.forceInsert(ds, obj, yormTable);
@@ -63,18 +63,18 @@ public class QueryBuilder {
 
     public <T extends Record> List<T> get(DataSource ds, Record filterObject, YormTable yormTableFilter, YormTable yormTableObject)
         throws InvocationTargetException, IllegalAccessException, YormException {
-        String foreignKeyFilter = yormTableFilter.getDbTable() + "_id";
-        String foreignKey = yormTableFilter.getDbTable() + "_id";
-        Optional<YormTuple> yormTuple = yormTableObject.getTuples().stream().filter(t -> t.dbFieldName().equalsIgnoreCase(foreignKeyFilter)).findFirst();
+        String foreignKeyFilter = yormTableFilter.dbTable() + "_id";
+        String foreignKey = yormTableFilter.dbTable() + "_id";
+        Optional<YormTuple> yormTuple = yormTableObject.tuples().stream().filter(t -> t.dbFieldName().equalsIgnoreCase(foreignKeyFilter)).findFirst();
         if (yormTuple.isEmpty()) {
-            String foreignKeySecondAttempt = "id_" + yormTableFilter.getDbTable();
-            yormTuple = yormTableObject.getTuples().stream().filter(t -> t.dbFieldName().equalsIgnoreCase(foreignKeySecondAttempt)).findFirst();
+            String foreignKeySecondAttempt = "id_" + yormTableFilter.dbTable();
+            yormTuple = yormTableObject.tuples().stream().filter(t -> t.dbFieldName().equalsIgnoreCase(foreignKeySecondAttempt)).findFirst();
             foreignKey = foreignKeySecondAttempt;
         }
         if (yormTuple.isEmpty()) {
             return new ArrayList<>();
         }
-        Optional<YormTuple> optionalFilteringTupleId = yormTableFilter.getTuples().stream().filter(FilterPredicates.getId()).findFirst();
+        Optional<YormTuple> optionalFilteringTupleId = yormTableFilter.tuples().stream().filter(FilterPredicates.getId()).findFirst();
         if (optionalFilteringTupleId.isEmpty()) {
             return new ArrayList<>();
         }
@@ -93,7 +93,7 @@ public class QueryBuilder {
 
     private <T extends Record> List<FieldValue> getFieldValues(List<T> list, YormTable yormTable) throws IllegalAccessException, InvocationTargetException {
         List<FieldValue> fieldValueList = new ArrayList<>();
-        List<YormTuple> yormTuples = yormTable.getTuples();
+        List<YormTuple> yormTuples = yormTable.tuples();
         for (Record obj : list) {
             for (YormTuple yormTuple : yormTuples) {
                 Method method = yormTuple.method();

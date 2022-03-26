@@ -25,12 +25,12 @@ public class QueryGet {
     }
 
     public static <T extends Record> List<T> getAll(DataSource ds, YormTable yormTable) throws YormException {
-        List<YormTuple> tuples = yormTable.getTuples();
+        List<YormTuple> tuples = yormTable.tuples();
         StringBuilder query = new StringBuilder("SELECT ");
         List<T> resultList = new ArrayList<>();
         query.append(String.join(",", tuples.stream().map(YormTuple::dbFieldName).toList()))
             .append(" FROM ")
-            .append(yormTable.getDbTable());
+            .append(yormTable.dbTable());
         try (Connection connection = ds.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(query.toString())) {
             ResultSet rs = preparedStatement.executeQuery();
@@ -38,21 +38,21 @@ public class QueryGet {
                 Object[] values = new Object[tuples.size()];
                 int params = 0;
                 loopResults(tuples, rs, values, params);
-                resultList.add((T) yormTable.getConstructor().newInstance(values));
+                resultList.add((T) yormTable.constructor().newInstance(values));
             }
         } catch (SQLException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new YormException("Error while getting all records from table:" + yormTable.getDbTable(), e);
+            throw new YormException("Error while getting all records from table:" + yormTable.dbTable(), e);
         }
         return resultList;
     }
 
     public static <T extends Record> T getById(DataSource ds, YormTable yormTable, int id) throws YormException {
-        List<YormTuple> tuples = yormTable.getTuples();
+        List<YormTuple> tuples = yormTable.tuples();
         StringBuilder query = new StringBuilder("SELECT ");
         Object result = null;
         query.append(String.join(",", tuples.stream().map(YormTuple::dbFieldName).toList()))
             .append(" FROM ")
-            .append(yormTable.getDbTable())
+            .append(yormTable.dbTable())
             .append(" WHERE id=?");
         try (Connection connection = ds.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(query.toString())) {
@@ -62,23 +62,23 @@ public class QueryGet {
                 Object[] values = new Object[tuples.size()];
                 int params = 0;
                 loopResults(tuples, rs, values, params);
-                result = yormTable.getConstructor().newInstance(values);
+                result = yormTable.constructor().newInstance(values);
             }
 
 
         } catch (SQLException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new YormException("Error while getting record with id:" + id + " from table:" + yormTable.getDbTable(), e);
+            throw new YormException("Error while getting record with id:" + id + " from table:" + yormTable.dbTable(), e);
         }
         return (T) result;
     }
 
     public static <T extends Record> List<T> getByForeignId(DataSource ds, YormTable yormTable, String fieldName, int id) throws YormException {
         List<T> resultList = new ArrayList<>();
-        List<YormTuple> tuples = yormTable.getTuples();
+        List<YormTuple> tuples = yormTable.tuples();
         StringBuilder query = new StringBuilder("SELECT ");
         query.append(String.join(",", tuples.stream().map(YormTuple::dbFieldName).toList()))
             .append(" FROM ")
-            .append(yormTable.getDbTable())
+            .append(yormTable.dbTable())
             .append(" WHERE " + fieldName + "=?");
         try (Connection connection = ds.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(query.toString())) {
@@ -88,13 +88,13 @@ public class QueryGet {
                 Object[] values = new Object[tuples.size()];
                 int params = 0;
                 loopResults(tuples, rs, values, params);
-                Object result = yormTable.getConstructor().newInstance(values);
+                Object result = yormTable.constructor().newInstance(values);
                 resultList.add((T) result);
             }
 
 
         } catch (SQLException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new YormException("Error while deleting record with foreign id:" + id + " from table:" + yormTable.getDbTable(), e);
+            throw new YormException("Error while deleting record with foreign id:" + id + " from table:" + yormTable.dbTable(), e);
         }
         return resultList;
     }
@@ -102,11 +102,11 @@ public class QueryGet {
     public static <T extends Record> List<T> getFiltering(DataSource ds, YormTable yormTable, List<FieldValue> filteringList) throws YormException {
         String op = " ? OR";
         List<T> resultList = new ArrayList<>();
-        List<YormTuple> tuples = yormTable.getTuples();
+        List<YormTuple> tuples = yormTable.tuples();
         StringBuilder query = new StringBuilder("SELECT ");
         query.append(String.join(",", tuples.stream().map(YormTuple::dbFieldName).toList()))
             .append(" FROM ")
-            .append(yormTable.getDbTable());
+            .append(yormTable.dbTable());
         if (!filteringList.isEmpty()) {
             query.append(" WHERE ")
                 .append(String.join(" ", filteringList.stream().map(fv -> fv.fieldName() + " " + fv.whereOperator().getOperor() + op).toList()));
@@ -138,11 +138,11 @@ public class QueryGet {
                 Object[] values = new Object[tuples.size()];
                 int params = 0;
                 loopResults(tuples, rs, values, params);
-                Object result = yormTable.getConstructor().newInstance(values);
+                Object result = yormTable.constructor().newInstance(values);
                 resultList.add((T) result);
             }
         } catch (SQLException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new YormException("Error while filtering records with filtering list:" + filteringList + " from table:" + yormTable.getDbTable(), e);
+            throw new YormException("Error while filtering records with filtering list:" + filteringList + " from table:" + yormTable.dbTable(), e);
         }
         return resultList;
     }

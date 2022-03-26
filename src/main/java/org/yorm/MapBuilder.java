@@ -1,5 +1,6 @@
 package org.yorm;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.sql.Connection;
@@ -30,22 +31,22 @@ public class MapBuilder {
 
     public <T extends Record> YormTable buildMap(Class<T> recordObject) {
         String recordName = recordObject.getSimpleName().toLowerCase(Locale.ROOT);
-        var map = new YormTable(recordName);
         Field[] objectFields = recordObject.getDeclaredFields();
         List<Method> methods = Arrays.asList(recordObject.getMethods());
         String query = "DESCRIBE " + recordName;
+        List<YormTuple> tuples = new ArrayList<>();
         try (Connection connection = ds.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             List<Description> descriptionList = getDescription(preparedStatement);
-            populateMap(map, objectFields, descriptionList, methods);
-            map.setConstructor(recordObject.getConstructors()[0]);
+            tuples = populateMap(objectFields, descriptionList, methods);
         } catch (SQLException | YormException e) {
             logger.error(e.getMessage());
         }
-        return map;
+        return new YormTable(recordName, tuples, (Constructor<Record>) recordObject.getConstructors()[0]);
     }
 
-    private void populateMap(YormTable map, Field[] objectFields, List<Description> descriptionList, List<Method> methods) throws YormException {
+    private List<YormTuple> populateMap(Field[] objectFields, List<Description> descriptionList, List<Method> methods) throws YormException {
+        List<YormTuple> tuples = new ArrayList<>();
         for (Description description : descriptionList) {
             String objectField = findClosest(objectFields, description.fieldName());
             Optional<Method> methodOptional = methods.stream().filter(FilterPredicates.getMethod(objectField)).findFirst();
@@ -55,8 +56,9 @@ public class MapBuilder {
             var tuple = new YormTuple(description.fieldName(), objectField, DbType.getType(description.type()),
                 getSize(description.type()), getNullable(description.isNull()),
                 description.key(), description.defaultValue(), description.extra(), methodOptional.get());
-            map.add(tuple);
+            tuples.add(tuple);
         }
+        return tuples;
     }
 
     private List<Description> getDescription(PreparedStatement preparedStatement) {
