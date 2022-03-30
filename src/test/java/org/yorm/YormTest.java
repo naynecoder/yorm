@@ -1,11 +1,5 @@
 package org.yorm;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,6 +15,8 @@ import org.yorm.records.Invoice;
 import org.yorm.records.Person;
 import org.yorm.util.DbType;
 import org.yorm.utils.TestConnectionFactory;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class YormTest {
@@ -201,9 +197,12 @@ class YormTest {
     @Test
     @Order(12)
     void delete() throws YormException {
-        yorm.delete(Person.class, 1);
+        var somethingWasDeleted = yorm.delete(Person.class, 1);
+        assertTrue(somethingWasDeleted);
         Person personResult = yorm.find(Person.class, 1);
         assertNull(personResult);
+        somethingWasDeleted = yorm.delete(Person.class, 1);
+        assertFalse(somethingWasDeleted);
     }
 
     @Test
