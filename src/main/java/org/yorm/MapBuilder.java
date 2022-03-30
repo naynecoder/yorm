@@ -31,11 +31,11 @@ public class MapBuilder {
         this.ds = ds;
     }
 
-    public <T extends Record> YormTable buildMap(Class<T> recordObject) throws YormException {
-        String recordName = recordObject.getSimpleName().toLowerCase(Locale.ROOT);
-        Field[] objectFields = recordObject.getDeclaredFields();
-        List<Method> methods = Arrays.asList(recordObject.getMethods());
-        String query = "DESCRIBE " + recordName;
+    public <T extends Record> YormTable buildMap(Class<T> recordClass) throws YormException {
+        String dbTable = recordClass.getSimpleName().toLowerCase(Locale.ROOT);
+        Field[] objectFields = recordClass.getDeclaredFields();
+        List<Method> methods = Arrays.asList(recordClass.getMethods());
+        String query = "DESCRIBE " + dbTable;
         List<YormTuple> tuples;
         try (Connection connection = ds.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
@@ -43,9 +43,19 @@ public class MapBuilder {
             tuples = populateMap(objectFields, descriptionList, methods);
         } catch (SQLException | YormException e) {
             logger.error(e.getMessage());
-            throw new YormException("Error mapping record " + recordName, e);
+            throw new YormException("Error mapping record " + dbTable, e);
         }
-        return new YormTable(recordName, tuples, (Constructor<Record>) recordObject.getConstructors()[0]);
+
+        if(logger.isDebugEnabled()) {
+            logger.debug("Record:{} mapped to table:{}", recordClass.getName(), dbTable);
+            for (var tuple : tuples) {
+                logger.debug("  Field:{} mapped to column:{} type:{} nullable:{}", tuple.objectName(), tuple.dbFieldName(), tuple.type(), tuple.isNull());
+            }
+        }
+
+
+
+        return new YormTable(dbTable, tuples, (Constructor<Record>) recordClass.getConstructors()[0]);
     }
 
     private List<YormTuple> populateMap(Field[] objectFields, List<Description> descriptionList, List<Method> methods) throws YormException {
