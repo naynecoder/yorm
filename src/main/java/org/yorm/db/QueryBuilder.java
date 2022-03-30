@@ -53,8 +53,8 @@ public class QueryBuilder {
         return idInsert;
     }
 
-    public void delete(DataSource ds, YormTable yormTable, int id) throws YormException {
-        QueryDelete.delete(ds, yormTable, id);
+    public boolean delete(DataSource ds, YormTable yormTable, int id) throws YormException {
+        return QueryDelete.delete(ds, yormTable, id);
     }
 
     public <T extends Record> T get(DataSource ds, YormTable yormTable, int id) throws YormException {
