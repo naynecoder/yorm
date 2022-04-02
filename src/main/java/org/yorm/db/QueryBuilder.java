@@ -110,29 +110,27 @@ public class QueryBuilder {
         String dbFieldName = yormTuple.dbFieldName();
         DbType type = yormTuple.type();
         switch (type) {
-            case VARCHAR, CHAR:
+            case VARCHAR, CHAR -> {
                 String valueStr = (String) value;
                 if (!valueStr.isEmpty()) {
                     fieldValueList.add(new FieldValue(dbFieldName, type, "%" + valueStr + "%", WhereOperator.LIKE));
                 }
-                break;
-            case SMALLINT, MEDIUMINT, INT, INTEGER, BIT:
+            }
+            case SMALLINT, INTEGER, BIT -> {
                 int valueInt = (int) value;
                 boolean idWithoutValue = dbFieldName.contains("id") && valueInt < 1;
                 if (!idWithoutValue) {
                     fieldValueList.add(new FieldValue(dbFieldName, type, valueInt, WhereOperator.EQUALS));
                 }
-                break;
-            case BIGINT:
+            }
+            case BIGINT -> {
                 long valueLong = (long) value;
                 boolean idLongWithoutValue = dbFieldName.contains("id") && valueLong < 1;
                 if (!idLongWithoutValue) {
                     fieldValueList.add(new FieldValue(dbFieldName, type, valueLong, WhereOperator.EQUALS));
                 }
-                break;
-            default:
-                fieldValueList.add(new FieldValue(dbFieldName, type, value, WhereOperator.EQUALS));
-                break;
+            }
+            default -> fieldValueList.add(new FieldValue(dbFieldName, type, value, WhereOperator.EQUALS));
         }
     }
 

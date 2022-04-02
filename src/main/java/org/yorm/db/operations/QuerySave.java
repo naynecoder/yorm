@@ -137,14 +137,14 @@ public class QuerySave {
             Method method = tuple.method();
             switch (tuple.type()) {
                 case TINYINT -> preparedStatement.setBoolean(paramIndex, (boolean) method.invoke(obj));
-                case SMALLINT, MEDIUMINT, INT, INTEGER, BIT -> preparedStatement.setInt(paramIndex, (int) method.invoke(obj));
+                case SMALLINT, INTEGER, BIT -> preparedStatement.setInt(paramIndex, (int) method.invoke(obj));
                 case BIGINT -> preparedStatement.setLong(paramIndex, (long) method.invoke(obj));
                 case VARCHAR, CHAR -> preparedStatement.setString(paramIndex, (String) method.invoke(obj));
                 case DOUBLE -> preparedStatement.setDouble(paramIndex, (double) method.invoke(obj));
-                case FLOAT -> preparedStatement.setFloat(paramIndex, (float) method.invoke(obj));
+                case FLOAT, REAL -> preparedStatement.setFloat(paramIndex, (float) method.invoke(obj));
                 case DECIMAL -> preparedStatement.setBigDecimal(paramIndex, (BigDecimal) method.invoke(obj));
                 case DATE -> preparedStatement.setDate(paramIndex, Date.valueOf((LocalDate) method.invoke(obj)));
-                case DATETIME, TIMESTAMP -> preparedStatement.setTimestamp(paramIndex, Timestamp.valueOf((LocalDateTime) method.invoke(obj)));
+                case TIMESTAMP -> preparedStatement.setTimestamp(paramIndex, Timestamp.valueOf((LocalDateTime) method.invoke(obj)));
                 default -> throw new YormException("Couldn't find type for " + tuple.dbFieldName());
             }
             paramIndex++;
