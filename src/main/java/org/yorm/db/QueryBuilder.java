@@ -12,7 +12,8 @@ import org.yorm.db.operations.FilterPredicates;
 import org.yorm.db.operations.QueryDelete;
 import org.yorm.db.operations.QueryFind;
 import org.yorm.db.operations.QuerySave;
-import org.yorm.db.operations.WhereOperator;
+import org.yorm.db.operations.operators.ComparisonOperator;
+import org.yorm.db.operations.operators.WhereOperator;
 import org.yorm.exception.YormException;
 import org.yorm.util.DbType;
 
@@ -57,11 +58,11 @@ public class QueryBuilder {
         QueryDelete.delete(ds, yormTable, id);
     }
 
-    public <T extends Record> T get(DataSource ds, YormTable yormTable, int id) throws YormException {
+    public <T extends Record> T find(DataSource ds, YormTable yormTable, int id) throws YormException {
         return QueryFind.findById(ds, yormTable, id);
     }
 
-    public <T extends Record> List<T> get(DataSource ds, Record filterObject, YormTable yormTableFilter, YormTable yormTableObject)
+    public <T extends Record> List<T> find(DataSource ds, Record filterObject, YormTable yormTableFilter, YormTable yormTableObject)
         throws InvocationTargetException, IllegalAccessException, YormException {
         String foreignKeyFilter = yormTableFilter.dbTable() + "_id";
         String foreignKey = yormTableFilter.dbTable() + "_id";
@@ -82,56 +83,61 @@ public class QueryBuilder {
         return QueryFind.findByForeignId(ds, yormTableObject, foreignKey, id);
     }
 
-    public <T extends Record> List<T> get(DataSource ds, YormTable yormTable) throws YormException {
+    public <T extends Record> List<T> find(DataSource ds, YormTable yormTable) throws YormException {
         return QueryFind.findAll(ds, yormTable);
     }
 
-    public <T extends Record> List<T> get(DataSource ds, List<T> list, YormTable yormTable) throws InvocationTargetException, IllegalAccessException, YormException {
-        List<FieldValue> fieldValueList = getFieldValues(list, yormTable);
-        return QueryFind.findFiltering(ds, yormTable, fieldValueList);
+    public <T extends Record> List<T> find(DataSource ds, List<T> list, YormTable yormTable, WhereOperator whereOperator) throws InvocationTargetException, IllegalAccessException, YormException {
+        List<FilteringFieldValue> filteringFieldValueList = getFieldValues(list, yormTable, whereOperator);
+        return QueryFind.findFiltering(ds, yormTable, filteringFieldValueList);
     }
 
-    private <T extends Record> List<FieldValue> getFieldValues(List<T> list, YormTable yormTable) throws IllegalAccessException, InvocationTargetException {
-        List<FieldValue> fieldValueList = new ArrayList<>();
+    public <T extends Record> List<T> find(DataSource ds, List<T> list, YormTable yormTable) throws InvocationTargetException, IllegalAccessException, YormException {
+        List<FilteringFieldValue> filteringFieldValueList = getFieldValues(list, yormTable, WhereOperator.OR);
+        return QueryFind.findFiltering(ds, yormTable, filteringFieldValueList);
+    }
+
+    private <T extends Record> List<FilteringFieldValue> getFieldValues(List<T> list, YormTable yormTable, WhereOperator whereOperator) throws IllegalAccessException, InvocationTargetException {
+        List<FilteringFieldValue> filteringFieldValueList = new ArrayList<>();
         List<YormTuple> yormTuples = yormTable.tuples();
         for (Record obj : list) {
             for (YormTuple yormTuple : yormTuples) {
                 Method method = yormTuple.method();
                 Object value = method.invoke(obj);
                 if (value != null) {
-                    mapValues(fieldValueList, yormTuple, value);
+                    mapValues(filteringFieldValueList, yormTuple, value, whereOperator);
                 }
             }
         }
-        return fieldValueList;
+        return filteringFieldValueList;
     }
 
-    private void mapValues(List<FieldValue> fieldValueList, YormTuple yormTuple, Object value) {
+    private void mapValues(List<FilteringFieldValue> filteringFieldValueList, YormTuple yormTuple, Object value, WhereOperator whereOperator) {
         String dbFieldName = yormTuple.dbFieldName();
         DbType type = yormTuple.type();
         switch (type) {
             case VARCHAR, CHAR:
                 String valueStr = (String) value;
                 if (!valueStr.isEmpty()) {
-                    fieldValueList.add(new FieldValue(dbFieldName, type, "%" + valueStr + "%", WhereOperator.LIKE));
+                    filteringFieldValueList.add(new FilteringFieldValue(dbFieldName, type, "%" + valueStr + "%", ComparisonOperator.LIKE, whereOperator));
                 }
                 break;
             case SMALLINT, MEDIUMINT, INT, INTEGER, BIT:
                 int valueInt = (int) value;
                 boolean idWithoutValue = dbFieldName.contains("id") && valueInt < 1;
                 if (!idWithoutValue) {
-                    fieldValueList.add(new FieldValue(dbFieldName, type, valueInt, WhereOperator.EQUALS));
+                    filteringFieldValueList.add(new FilteringFieldValue(dbFieldName, type, valueInt, ComparisonOperator.EQUALS, whereOperator));
                 }
                 break;
             case BIGINT:
                 long valueLong = (long) value;
                 boolean idLongWithoutValue = dbFieldName.contains("id") && valueLong < 1;
                 if (!idLongWithoutValue) {
-                    fieldValueList.add(new FieldValue(dbFieldName, type, valueLong, WhereOperator.EQUALS));
+                    filteringFieldValueList.add(new FilteringFieldValue(dbFieldName, type, valueLong, ComparisonOperator.EQUALS, whereOperator));
                 }
                 break;
             default:
-                fieldValueList.add(new FieldValue(dbFieldName, type, value, WhereOperator.EQUALS));
+                filteringFieldValueList.add(new FilteringFieldValue(dbFieldName, type, value, ComparisonOperator.EQUALS, whereOperator));
                 break;
         }
     }

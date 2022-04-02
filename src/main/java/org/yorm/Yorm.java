@@ -8,6 +8,7 @@ import java.util.Locale;
 import java.util.Map;
 import javax.sql.DataSource;
 import org.yorm.db.QueryBuilder;
+import org.yorm.db.operations.select.Select;
 import org.yorm.exception.YormException;
 
 public class Yorm {
@@ -61,7 +62,7 @@ public class Yorm {
     public <T extends Record> T find(Class<T> recordObject, int id) throws YormException {
         String objectName = getClassName(recordObject);
         YormTable yormTable = getTable(objectName, recordObject);
-        return queryBuilder.get(ds, yormTable, id);
+        return queryBuilder.find(ds, yormTable, id);
     }
 
     public <T extends Record> List<T> find(Class<T> referenceObject, Record filterObject) throws YormException {
@@ -71,7 +72,7 @@ public class Yorm {
         YormTable yormTableObject = getTable(referenceObjectName, referenceObject);
         List<T> result;
         try {
-            result = queryBuilder.get(ds, filterObject, yormTableFilter, yormTableObject);
+            result = queryBuilder.find(ds, filterObject, yormTableFilter, yormTableObject);
         } catch (InvocationTargetException | IllegalAccessException | YormException e) {
             throw new YormException("Error while finding records with reference:" + referenceObject + " and filter:" + filterObject, e);
         }
@@ -81,7 +82,13 @@ public class Yorm {
     public <T extends Record> List<T> find(Class<T> referenceObject) throws YormException {
         String referenceObjectName = getClassName(referenceObject);
         YormTable yormTable = getTable(referenceObjectName, referenceObject);
-        return queryBuilder.get(ds, yormTable);
+        return queryBuilder.find(ds, yormTable);
+    }
+
+    public <T extends Record> Select<T> from(Class<T> referenceObject) throws YormException {
+        String referenceObjectName = getClassName(referenceObject);
+        YormTable yormTable = getTable(referenceObjectName, referenceObject);
+        return new Select<>(ds, referenceObject, yormTable);
     }
 
     public <T extends Record> List<T> find(List<T> list) throws YormException {
@@ -93,7 +100,7 @@ public class Yorm {
         String objectName = getRecordName(recordObj);
         YormTable yormTable = getTable(objectName, recordObj.getClass());
         try {
-            result = queryBuilder.get(ds, list, yormTable);
+            result = queryBuilder.find(ds, list, yormTable);
         } catch (InvocationTargetException | IllegalAccessException | YormException e) {
             throw new YormException("Error while finding records with list", e);
         }

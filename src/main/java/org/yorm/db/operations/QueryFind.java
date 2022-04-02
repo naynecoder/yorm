@@ -15,7 +15,7 @@ import java.util.List;
 import javax.sql.DataSource;
 import org.yorm.YormTable;
 import org.yorm.YormTuple;
-import org.yorm.db.FieldValue;
+import org.yorm.db.FilteringFieldValue;
 import org.yorm.exception.YormException;
 import org.yorm.util.DbType;
 
@@ -69,7 +69,7 @@ public class QueryFind {
         List<YormTuple> tuples = yormTable.tuples();
         String query = yormTable.selectAllFromTable() + " WHERE " + fieldName + " = ?";
         try (Connection connection = ds.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(query.toString())) {
+            PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setInt(1, id);
             ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()) {
@@ -87,23 +87,22 @@ public class QueryFind {
         return resultList;
     }
 
-    public static <T extends Record> List<T> findFiltering(DataSource ds, YormTable yormTable, List<FieldValue> filteringList) throws YormException {
-        String op = " ? OR";
+    public static <T extends Record> List<T> findFiltering(DataSource ds, YormTable yormTable, List<FilteringFieldValue> filteringList) throws YormException {
         List<T> resultList = new ArrayList<>();
         List<YormTuple> tuples = yormTable.tuples();
         StringBuilder query = new StringBuilder(yormTable.selectAllFromTable());
         if (!filteringList.isEmpty()) {
             query.append(" WHERE ")
-                .append(String.join(" ", filteringList.stream().map(fv -> fv.fieldName() + " " + fv.whereOperator().getOperor() + op).toList()));
-            query.deleteCharAt(query.length() - 1);
-            query.deleteCharAt(query.length() - 1);
+                .append(String.join(" ",
+                    filteringList.stream().map(fv -> fv.whereOperator().getOperator() + " " + fv.fieldName() + " " + fv.comparisonOperator().getOperator() + " ? ").toList()));
         }
+        String completeQuery = cleanSql(query.toString());
         try (Connection connection = ds.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(query.toString())) {
+            PreparedStatement preparedStatement = connection.prepareStatement(completeQuery)) {
             int paramIndex = 1;
-            for (FieldValue fieldValue : filteringList) {
-                Object obj = fieldValue.value();
-                DbType type = fieldValue.dbType();
+            for (FilteringFieldValue filteringFieldValue : filteringList) {
+                Object obj = filteringFieldValue.value();
+                DbType type = filteringFieldValue.dbType();
                 switch (type) {
                     case TINYINT -> preparedStatement.setBoolean(paramIndex, (boolean) obj);
                     case SMALLINT, MEDIUMINT, INT, INTEGER, BIT -> preparedStatement.setInt(paramIndex, (int) obj);
@@ -114,7 +113,7 @@ public class QueryFind {
                     case DECIMAL -> preparedStatement.setBigDecimal(paramIndex, (BigDecimal) obj);
                     case DATE -> preparedStatement.setDate(paramIndex, Date.valueOf((LocalDate) obj));
                     case DATETIME, TIMESTAMP -> preparedStatement.setTimestamp(paramIndex, Timestamp.valueOf((LocalDateTime) obj));
-                    default -> throw new YormException("Couldn't find type for " + fieldValue.fieldName());
+                    default -> throw new YormException("Couldn't find type for " + filteringFieldValue.fieldName());
                 }
                 paramIndex++;
             }
@@ -130,6 +129,13 @@ public class QueryFind {
             throw new YormException("Error while filtering records with filtering list:" + filteringList + " from table:" + yormTable.dbTable(), e);
         }
         return resultList;
+    }
+
+    private static String cleanSql(String query) {
+        query = query.replace("  ", " ");
+        query = query.replace("WHERE OR", "WHERE");
+        query = query.replace("WHERE AND", "WHERE");
+        return query;
     }
 
     private static void loopResults(List<YormTuple> tuples, ResultSet rs, Object[] values, int params) throws SQLException, YormException {

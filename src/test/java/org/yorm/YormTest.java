@@ -1,6 +1,7 @@
 package org.yorm;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -170,6 +171,8 @@ class YormTest {
         assertEquals("Sauron", person1.name());
         assertEquals("sauron@mordor.com", person1.email());
         assertEquals(2, person1.companyId());
+        List<Person> list2 = yorm.from(Person.class).where(Person::email).like(".com").find();
+        assertFalse(list2.isEmpty());
     }
 
     @Test
@@ -212,4 +215,12 @@ class YormTest {
         Invoice invoice = new Invoice(1, 1);
         assertThrows(YormException.class, () -> yorm.insert(invoice));
     }
+
+    @Test
+    @Order(14)
+    void testFluentWhere() throws YormException {
+        List<Person> list = yorm.from(Person.class).where(Person::email).like(".com").find();
+        assertFalse(list.isEmpty());
+    }
+
 }
