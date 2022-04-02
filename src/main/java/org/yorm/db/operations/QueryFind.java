@@ -106,14 +106,14 @@ public class QueryFind {
                 DbType type = fieldValue.dbType();
                 switch (type) {
                     case TINYINT -> preparedStatement.setBoolean(paramIndex, (boolean) obj);
-                    case SMALLINT, MEDIUMINT, INT, INTEGER, BIT -> preparedStatement.setInt(paramIndex, (int) obj);
+                    case SMALLINT, INTEGER, BIT -> preparedStatement.setInt(paramIndex, (int) obj);
                     case BIGINT -> preparedStatement.setLong(paramIndex, (long) obj);
                     case VARCHAR, CHAR -> preparedStatement.setString(paramIndex, (String) obj);
                     case DOUBLE -> preparedStatement.setDouble(paramIndex, (double) obj);
                     case FLOAT -> preparedStatement.setFloat(paramIndex, (float) obj);
                     case DECIMAL -> preparedStatement.setBigDecimal(paramIndex, (BigDecimal) obj);
                     case DATE -> preparedStatement.setDate(paramIndex, Date.valueOf((LocalDate) obj));
-                    case DATETIME, TIMESTAMP -> preparedStatement.setTimestamp(paramIndex, Timestamp.valueOf((LocalDateTime) obj));
+                    case TIMESTAMP -> preparedStatement.setTimestamp(paramIndex, Timestamp.valueOf((LocalDateTime) obj));
                     default -> throw new YormException("Couldn't find type for " + fieldValue.fieldName());
                 }
                 paramIndex++;
@@ -140,7 +140,7 @@ public class QueryFind {
                     boolean tiny = rs.getBoolean(tableFieldName);
                     values[params++] = tiny;
                 }
-                case SMALLINT, MEDIUMINT, INT, INTEGER, BIT -> {
+                case SMALLINT, INTEGER, BIT -> {
                     int ii = rs.getInt(tableFieldName);
                     values[params++] = ii;
                 }
@@ -156,7 +156,7 @@ public class QueryFind {
                     double dd = rs.getDouble(tableFieldName);
                     values[params++] = dd;
                 }
-                case FLOAT -> {
+                case FLOAT, REAL -> {
                     float ff = rs.getFloat(tableFieldName);
                     values[params++] = ff;
                 }
@@ -168,7 +168,7 @@ public class QueryFind {
                     Date date = rs.getDate(tableFieldName);
                     values[params++] = date.toLocalDate();
                 }
-                case TIMESTAMP, DATETIME -> {
+                case TIMESTAMP -> {
                     Timestamp ts = rs.getTimestamp(tableFieldName);
                     values[params++] = ts.toLocalDateTime();
                 }
