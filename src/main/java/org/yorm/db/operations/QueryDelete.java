@@ -12,7 +12,7 @@ public class QueryDelete {
     private QueryDelete() {
     }
 
-    public static void delete(DataSource ds, YormTable yormTable, int id) throws YormException {
+    public static boolean delete(DataSource ds, YormTable yormTable, int id) throws YormException {
         StringBuilder query = new StringBuilder("DELETE ");
         query.append(" FROM ")
             .append(yormTable.dbTable())
@@ -20,7 +20,7 @@ public class QueryDelete {
         try (Connection connection = ds.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(query.toString())) {
             preparedStatement.setInt(1, id);
-            preparedStatement.executeUpdate();
+            return preparedStatement.executeUpdate() > 0;
         } catch (SQLException e) {
             throw new YormException("Error while deleting record with id:" + id + " from table:" + yormTable.dbTable(), e);
         }

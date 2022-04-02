@@ -115,10 +115,10 @@ public class Yorm {
         return recordObj.getClass().getSimpleName().toLowerCase(Locale.ROOT);
     }
 
-    public <T extends Record> void delete(Class<T> recordObject, int id) throws YormException {
+    public <T extends Record> boolean delete(Class<T> recordObject, int id) throws YormException {
         String objectName = getClassName(recordObject);
         YormTable yormTable = getTable(objectName, recordObject);
-        queryBuilder.delete(ds, yormTable, id);
+        return queryBuilder.delete(ds, yormTable, id);
     }
 
     private <T extends Record> YormTable getTable(String objectName, Class<T> recordObject) throws YormException {

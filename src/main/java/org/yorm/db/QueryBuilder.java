@@ -54,8 +54,8 @@ public class QueryBuilder {
         return idInsert;
     }
 
-    public void delete(DataSource ds, YormTable yormTable, int id) throws YormException {
-        QueryDelete.delete(ds, yormTable, id);
+    public boolean delete(DataSource ds, YormTable yormTable, int id) throws YormException {
+        return QueryDelete.delete(ds, yormTable, id);
     }
 
     public <T extends Record> T find(DataSource ds, YormTable yormTable, int id) throws YormException {
@@ -116,29 +116,28 @@ public class QueryBuilder {
         String dbFieldName = yormTuple.dbFieldName();
         DbType type = yormTuple.type();
         switch (type) {
-            case VARCHAR, CHAR:
+            case VARCHAR, CHAR -> {
                 String valueStr = (String) value;
                 if (!valueStr.isEmpty()) {
                     filteringFieldValueList.add(new FilteringFieldValue(dbFieldName, type, "%" + valueStr + "%", ComparisonOperator.LIKE, whereOperator));
                 }
-                break;
-            case SMALLINT, MEDIUMINT, INT, INTEGER, BIT:
+            }
+            case SMALLINT, INTEGER, BIT -> {
                 int valueInt = (int) value;
                 boolean idWithoutValue = dbFieldName.contains("id") && valueInt < 1;
                 if (!idWithoutValue) {
                     filteringFieldValueList.add(new FilteringFieldValue(dbFieldName, type, valueInt, ComparisonOperator.EQUALS, whereOperator));
                 }
-                break;
-            case BIGINT:
+            }
+            case BIGINT -> {
                 long valueLong = (long) value;
                 boolean idLongWithoutValue = dbFieldName.contains("id") && valueLong < 1;
                 if (!idLongWithoutValue) {
                     filteringFieldValueList.add(new FilteringFieldValue(dbFieldName, type, valueLong, ComparisonOperator.EQUALS, whereOperator));
                 }
-                break;
-            default:
-                filteringFieldValueList.add(new FilteringFieldValue(dbFieldName, type, value, ComparisonOperator.EQUALS, whereOperator));
-                break;
+            }
+            default -> filteringFieldValueList.add(new FilteringFieldValue(dbFieldName, type, value, ComparisonOperator.EQUALS, whereOperator));
+
         }
     }
 

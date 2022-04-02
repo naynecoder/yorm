@@ -14,7 +14,7 @@
         <Root level="info" additivity="false">
             <AppenderRef ref="console" />
         </Root>
-        <Logger name="org.yorm" level="info">
+        <Logger name="org.yorm" level="debug" additivity="false">
             <AppenderRef ref="console"/>
         </Logger>
     </Loggers>
