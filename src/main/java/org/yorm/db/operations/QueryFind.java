@@ -1,25 +1,22 @@
 package org.yorm.db.operations;
 
-import java.lang.reflect.InvocationTargetException;
-import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import javax.sql.DataSource;
 import org.yorm.YormTable;
 import org.yorm.YormTuple;
 import org.yorm.db.FieldValue;
 import org.yorm.exception.YormException;
-import org.yorm.util.DbType;
+import org.yorm.util.RowRecordConverter;
+
+import javax.sql.DataSource;
+import java.lang.reflect.InvocationTargetException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class QueryFind {
+    private static final RowRecordConverter rowRecordConverter = new RowRecordConverter();
 
     private QueryFind() {
     }
@@ -102,21 +99,7 @@ public class QueryFind {
             PreparedStatement preparedStatement = connection.prepareStatement(query.toString())) {
             int paramIndex = 1;
             for (FieldValue fieldValue : filteringList) {
-                Object obj = fieldValue.value();
-                DbType type = fieldValue.dbType();
-                switch (type) {
-                    //MySql does not have a truly boolean type, bool/boolean are a synonym of tinyint(1)
-                    case TINYINT, BIT -> preparedStatement.setBoolean(paramIndex, (boolean) obj);
-                    case SMALLINT, INTEGER -> preparedStatement.setInt(paramIndex, (int) obj);
-                    case BIGINT -> preparedStatement.setLong(paramIndex, (long) obj);
-                    case VARCHAR, CHAR -> preparedStatement.setString(paramIndex, (String) obj);
-                    case DOUBLE -> preparedStatement.setDouble(paramIndex, (double) obj);
-                    case FLOAT -> preparedStatement.setFloat(paramIndex, (float) obj);
-                    case DECIMAL -> preparedStatement.setBigDecimal(paramIndex, (BigDecimal) obj);
-                    case DATE -> preparedStatement.setDate(paramIndex, Date.valueOf((LocalDate) obj));
-                    case TIMESTAMP -> preparedStatement.setTimestamp(paramIndex, Timestamp.valueOf((LocalDateTime) obj));
-                    default -> throw new YormException("Couldn't find type for " + fieldValue.fieldName());
-                }
+                rowRecordConverter.recordToRow(paramIndex, preparedStatement, fieldValue.fieldName(), fieldValue.value(), fieldValue.dbType());
                 paramIndex++;
             }
             ResultSet rs = preparedStatement.executeQuery();
@@ -135,48 +118,10 @@ public class QueryFind {
 
     private static void loopResults(List<YormTuple> tuples, ResultSet rs, Object[] values, int params) throws SQLException, YormException {
         for (YormTuple tuple : tuples) {
-            String tableFieldName = tuple.dbFieldName();
-            switch (tuple.type()) {
-                case TINYINT, BIT -> {
-                    //MySql does not have a truly boolean type, bool/boolean are a synonym of tinyint(1)
-                    boolean tiny = rs.getBoolean(tableFieldName);
-                    values[params++] = tiny;
-                }
-                case SMALLINT, INTEGER -> {
-                    int ii = rs.getInt(tableFieldName);
-                    values[params++] = ii;
-                }
-                case BIGINT -> {
-                    long ll = rs.getLong(tableFieldName);
-                    values[params++] = ll;
-                }
-                case VARCHAR, CHAR -> {
-                    String str = rs.getString(tableFieldName);
-                    values[params++] = str;
-                }
-                case DOUBLE -> {
-                    double dd = rs.getDouble(tableFieldName);
-                    values[params++] = dd;
-                }
-                case FLOAT, REAL -> {
-                    float ff = rs.getFloat(tableFieldName);
-                    values[params++] = ff;
-                }
-                case DECIMAL -> {
-                    BigDecimal bb = rs.getBigDecimal(tableFieldName);
-                    values[params++] = bb;
-                }
-                case DATE -> {
-                    Date date = rs.getDate(tableFieldName);
-                    values[params++] = date.toLocalDate();
-                }
-                case TIMESTAMP -> {
-                    Timestamp ts = rs.getTimestamp(tableFieldName);
-                    values[params++] = ts.toLocalDateTime();
-                }
-                default -> throw new YormException("Couldn't find type for " + tuple.dbFieldName());
-            }
+            params = rowRecordConverter.rowToRecord(rs, values, params, tuple.dbFieldName(), tuple.type());
         }
     }
+
+
 
 }

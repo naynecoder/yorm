@@ -2,24 +2,23 @@ package org.yorm.db.operations;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.math.BigDecimal;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.Predicate;
 import javax.sql.DataSource;
 import org.yorm.YormTable;
 import org.yorm.YormTuple;
 import org.yorm.exception.YormException;
+import org.yorm.util.DbType;
+import org.yorm.util.RowRecordConverter;
 
 public class QuerySave {
+
+    private static final RowRecordConverter rowRecordConverter = new RowRecordConverter();
 
     private QuerySave() {
     }
@@ -136,22 +135,13 @@ public class QuerySave {
         for (YormTuple tuple : tuples) {
             Method method = tuple.method();
             final Object value = method.invoke(obj);
-            switch (tuple.type()) {
-                //MySql does not have a truly boolean type, bool/boolean are a synonym of tinyint(1)
-                case TINYINT, BIT -> preparedStatement.setBoolean(paramIndex, (boolean) value);
-                case SMALLINT, INTEGER -> preparedStatement.setInt(paramIndex, (int) value);
-                case BIGINT -> preparedStatement.setLong(paramIndex, (long) value);
-                case VARCHAR, CHAR -> preparedStatement.setString(paramIndex, (String) value);
-                case DOUBLE -> preparedStatement.setDouble(paramIndex, (double) value);
-                case FLOAT, REAL -> preparedStatement.setFloat(paramIndex, (float) value);
-                case DECIMAL -> preparedStatement.setBigDecimal(paramIndex, (BigDecimal) value);
-                case DATE -> preparedStatement.setDate(paramIndex, Date.valueOf((LocalDate) value));
-                case TIMESTAMP -> preparedStatement.setTimestamp(paramIndex, Timestamp.valueOf((LocalDateTime) value));
-                default -> throw new YormException("Couldn't find type for " + tuple.dbFieldName());
-            }
+            final DbType type = tuple.type();
+            rowRecordConverter.recordToRow(paramIndex, preparedStatement, tuple.dbFieldName(), value, type);
             paramIndex++;
         }
         return paramIndex;
     }
+
+
 
 }
