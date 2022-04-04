@@ -85,7 +85,6 @@ public class MapBuilder {
         List<String> nonUniqueIndexColumns = new ArrayList<>();
         try (ResultSet rsIndex = metaData.getIndexInfo(null, null, table, false, false)) {
             while (rsIndex.next()){
-                String indexName = rsIndex.getString("INDEX_NAME");
                 String columnName = rsIndex.getString("COLUMN_NAME");
                 Boolean nonUnique = rsIndex.getBoolean("NON_UNIQUE");
                 Short ordinalPosition = rsIndex.getShort("ORDINAL_POSITION");
@@ -116,9 +115,10 @@ public class MapBuilder {
                 String type = rsColumn.getString("DATA_TYPE");
                 String size = rsColumn.getString("COLUMN_SIZE");
                 String isNull = rsColumn.getString("IS_NULLABLE");
+                String isAutoincrement = rsColumn.getString("IS_AUTOINCREMENT");
                 String key = calculateKey(columnName, primaryKeysColumns, uniqueIndexColumns, nonUniqueIndexColumns);
                 String defaultValue = rsColumn.getString(5);
-                String extra = rsColumn.getString(6);
+                String extra = "YES".equals(isAutoincrement) ? "auto_increment" : "";
                 descriptionList.add(new Description(columnName, type, size, isNull, key, defaultValue, extra));
             }
         } catch (SQLException e) {

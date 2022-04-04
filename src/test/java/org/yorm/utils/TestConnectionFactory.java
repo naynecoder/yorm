@@ -6,24 +6,39 @@ import javax.sql.DataSource;
 
 public class TestConnectionFactory {
 
-    private static HikariConfig config = new HikariConfig();
-    private static HikariDataSource ds;
+    private static DataSource mySqlDs;
 
-    static {
-        config.setJdbcUrl("jdbc:tc:mysql:5.7.34:///databasename/yorm?TC_INITSCRIPT=file:src/test/resources/init_sample_db.sql");
-        config.setUsername("root");
-        config.setPassword("test");
-        config.addDataSourceProperty("cachePrepStmts", "true");
-        config.addDataSourceProperty("prepStmtCacheSize", "250");
-        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-        ds = new HikariDataSource(config);
-    }
+    private static DataSource postgreSqlDs;
 
     private TestConnectionFactory() {
     }
 
-    public static DataSource getConnection() {
-        return ds;
+    public static DataSource getMySqlConnection() {
+        if (mySqlDs == null) {
+            HikariConfig config = new HikariConfig();
+            config.setJdbcUrl("jdbc:tc:mysql:5.7.34:///databasename/yorm?TC_INITSCRIPT=file:src/test/resources/init_sample_db_my_sql.sql");
+            config.setUsername("root");
+            config.setPassword("test");
+            config.addDataSourceProperty("cachePrepStmts", "true");
+            config.addDataSourceProperty("prepStmtCacheSize", "250");
+            config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+            mySqlDs = new HikariDataSource(config);
+        }
+        return mySqlDs;
+    }
+
+    public static DataSource getPostgreSqlConnection() {
+        if(postgreSqlDs == null){
+            HikariConfig config = new HikariConfig();
+            config.setJdbcUrl("jdbc:tc:postgresql:9.6.8:///databasename/yorm?TC_INITSCRIPT=file:src/test/resources/init_sample_db_postgre_sql.sql");
+            config.setUsername("root");
+            config.setPassword("test");
+            config.addDataSourceProperty("cachePrepStmts", "true");
+            config.addDataSourceProperty("prepStmtCacheSize", "250");
+            config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+            postgreSqlDs = new HikariDataSource(config);
+        }
+        return postgreSqlDs;
     }
 
 }

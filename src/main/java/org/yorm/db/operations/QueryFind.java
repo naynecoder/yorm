@@ -94,7 +94,7 @@ public class QueryFind {
         StringBuilder query = new StringBuilder(yormTable.selectAllFromTable());
         if (!filteringList.isEmpty()) {
             query.append(" WHERE ")
-                .append(String.join(" ", filteringList.stream().map(fv -> fv.fieldName() + " " + fv.whereOperator().getOperor() + op).toList()));
+                .append(String.join(" ", filteringList.stream().map(fv -> fv.fieldName() + " " + fv.whereOperator().getOperator() + op).toList()));
             query.deleteCharAt(query.length() - 1);
             query.deleteCharAt(query.length() - 1);
         }
@@ -141,8 +141,14 @@ public class QueryFind {
                     values[params++] = tiny;
                 }
                 case SMALLINT, INTEGER, BIT -> {
-                    int ii = rs.getInt(tableFieldName);
-                    values[params++] = ii;
+                    //postgresql does not have a truly boolean value, uses integers to simulate
+                    if(tuple.method().getReturnType() == boolean.class){
+                        final boolean aBoolean = rs.getBoolean(tableFieldName);
+                        values[params++] = aBoolean;
+                    }else {
+                        int ii = rs.getInt(tableFieldName);
+                        values[params++] = ii;
+                    }
                 }
                 case BIGINT -> {
                     long ll = rs.getLong(tableFieldName);

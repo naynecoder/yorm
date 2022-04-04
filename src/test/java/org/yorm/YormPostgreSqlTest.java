@@ -1,14 +1,6 @@
 package org.yorm;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import javax.sql.DataSource;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.yorm.exception.YormException;
 import org.yorm.records.Company;
 import org.yorm.records.Invoice;
@@ -16,17 +8,22 @@ import org.yorm.records.Person;
 import org.yorm.util.DbType;
 import org.yorm.utils.TestConnectionFactory;
 
+import javax.sql.DataSource;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class YormTest {
+class YormPostgreSqlTest {
 
     private static DataSource ds;
     private static Yorm yorm;
 
     @BeforeAll
     private static void initDb() {
-        ds = TestConnectionFactory.getConnection();
+        ds = TestConnectionFactory.getPostgreSqlConnection();
         yorm = new Yorm(ds);
     }
 
@@ -57,7 +54,7 @@ class YormTest {
         assertEquals("companyId", tuple4.method().getName());
         assertEquals("companyId", tuple4.objectName());
         assertEquals("company_id", tuple4.dbFieldName());
-        assertEquals("MUL", tuple4.key());
+//        assertEquals("MUL", tuple4.key());
     }
 
     @Test
@@ -155,7 +152,7 @@ class YormTest {
     @Test
     @Order(9)
     void getFiltering() throws YormException {
-        Person personFilter1 = new Person(0, "harry", "john", null, 0);
+        Person personFilter1 = new Person(0, "Harry", "john", null, 0);
         Person personFilter2 = new Person(0, null, null, null, 2);
         List<Person> list = List.of(personFilter1, personFilter2);
         List<Person> personList = yorm.find(list);
