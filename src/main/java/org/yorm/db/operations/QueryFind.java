@@ -105,8 +105,9 @@ public class QueryFind {
                 Object obj = fieldValue.value();
                 DbType type = fieldValue.dbType();
                 switch (type) {
-                    case TINYINT -> preparedStatement.setBoolean(paramIndex, (boolean) obj);
-                    case SMALLINT, INTEGER, BIT -> preparedStatement.setInt(paramIndex, (int) obj);
+                    //MySql does not have a truly boolean type, bool/boolean are a synonym of tinyint(1)
+                    case TINYINT, BIT -> preparedStatement.setBoolean(paramIndex, (boolean) obj);
+                    case SMALLINT, INTEGER -> preparedStatement.setInt(paramIndex, (int) obj);
                     case BIGINT -> preparedStatement.setLong(paramIndex, (long) obj);
                     case VARCHAR, CHAR -> preparedStatement.setString(paramIndex, (String) obj);
                     case DOUBLE -> preparedStatement.setDouble(paramIndex, (double) obj);
@@ -136,19 +137,14 @@ public class QueryFind {
         for (YormTuple tuple : tuples) {
             String tableFieldName = tuple.dbFieldName();
             switch (tuple.type()) {
-                case TINYINT -> {
+                case TINYINT, BIT -> {
+                    //MySql does not have a truly boolean type, bool/boolean are a synonym of tinyint(1)
                     boolean tiny = rs.getBoolean(tableFieldName);
                     values[params++] = tiny;
                 }
-                case SMALLINT, INTEGER, BIT -> {
-                    //postgresql does not have a truly boolean value, uses integers to simulate
-                    if(tuple.method().getReturnType() == boolean.class){
-                        final boolean aBoolean = rs.getBoolean(tableFieldName);
-                        values[params++] = aBoolean;
-                    }else {
-                        int ii = rs.getInt(tableFieldName);
-                        values[params++] = ii;
-                    }
+                case SMALLINT, INTEGER -> {
+                    int ii = rs.getInt(tableFieldName);
+                    values[params++] = ii;
                 }
                 case BIGINT -> {
                     long ll = rs.getLong(tableFieldName);

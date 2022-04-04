@@ -137,16 +137,9 @@ public class QuerySave {
             Method method = tuple.method();
             final Object value = method.invoke(obj);
             switch (tuple.type()) {
-                case TINYINT -> preparedStatement.setBoolean(paramIndex, (boolean) value);
-                case SMALLINT, INTEGER, BIT -> {
-                    if(value instanceof Integer) {
-                        preparedStatement.setInt(paramIndex, (int) value);
-                    }
-                    if(value instanceof Boolean){
-                        //postgresql does not have a truly boolean type
-                        preparedStatement.setBoolean(paramIndex, (boolean) value);
-                    }
-                }
+                //MySql does not have a truly boolean type, bool/boolean are a synonym of tinyint(1)
+                case TINYINT, BIT -> preparedStatement.setBoolean(paramIndex, (boolean) value);
+                case SMALLINT, INTEGER -> preparedStatement.setInt(paramIndex, (int) value);
                 case BIGINT -> preparedStatement.setLong(paramIndex, (long) value);
                 case VARCHAR, CHAR -> preparedStatement.setString(paramIndex, (String) value);
                 case DOUBLE -> preparedStatement.setDouble(paramIndex, (double) value);
