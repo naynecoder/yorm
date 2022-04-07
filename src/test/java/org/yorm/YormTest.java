@@ -193,12 +193,18 @@ class YormTest {
         assertEquals("john.doe@um.com", personResultBefore.email());
         assertEquals(1, personResultBefore.companyId());
         Person person = new Person(1, "Draco", "draco.malfoy@hogwarts.com", localDateTime, 1);
-        yorm.update(person);//TODO Test update in this cases
+        yorm.save(person);//Update because the id is 1
         Person personResult = yorm.find(Person.class, 1);
         assertEquals(1, personResult.id());
         assertEquals("Draco", personResult.name());
         assertEquals("draco.malfoy@hogwarts.com", personResult.email());
         assertEquals(1, personResult.companyId());
+        Person person2 = new Person(1, "Lucius", "lucius.malfoy@hogwarts.com", localDateTime, 1);
+        yorm.update(person2);
+        Person personResult2 = yorm.find(Person.class, 1);
+        assertEquals(1, personResult2.id());
+        assertEquals("Lucius", personResult2.name());
+        assertEquals("lucius.malfoy@hogwarts.com", personResult2.email());
     }
 
     @Test
@@ -224,6 +230,14 @@ class YormTest {
     void testFluentWhere() throws YormException {
         List<Person> list = yorm.from(Person.class).where(Person::email).like(".com").find();
         assertFalse(list.isEmpty());
+        List<Person> secondList = yorm.from(Person.class).where(Person::companyId).equalTo(100)
+            .or(Person::email).like("hogwarts")
+            .find();
+        assertEquals(2, secondList.size());
+        List<Person> thirdList = yorm.from(Person.class).where(Person::name).equalTo("Hermione")
+            .and(Person::lastLogin).greaterThan(LocalDateTime.of(2019, 01, 01, 0, 0, 0))
+            .find();
+        assertEquals(1, thirdList.size());
     }
 
 }

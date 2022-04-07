@@ -34,20 +34,16 @@ public class MapBuilder {
             List<Description> descriptionList = getDescription(connection, dbTable);
             tuples = populateMap(objectFields, descriptionList, methods);
         } catch (SQLException | YormException e) {
-            logger.error(e.getMessage());
             throw new YormException("Error mapping record " + dbTable, e);
         }
-
-        if(logger.isDebugEnabled()) {
+        if (logger.isDebugEnabled()) {
             logger.debug("Record:{} mapped to table:{}", recordClass.getName(), dbTable);
             for (var tuple : tuples) {
                 logger.debug("  Field:{} mapped to column:{} type:{} nullable:{}", tuple.objectName(), tuple.dbFieldName(), tuple.type(), tuple.isNull());
             }
         }
-
-
-
-        return new YormTable(dbTable, tuples, (Constructor<Record>) recordClass.getConstructors()[0]);
+        Constructor<Record> constructor = (Constructor<Record>) recordClass.getConstructors()[0];
+        return new YormTable(dbTable, tuples, constructor);
     }
 
     private List<YormTuple> populateMap(Field[] objectFields, List<Description> descriptionList, List<Method> methods) throws YormException {
@@ -65,7 +61,7 @@ public class MapBuilder {
             alreadyUsedObjectFields.add(objectField);
             var tuple = new YormTuple(description.columnName(), objectField, DbType.getType(description.type()),
                 getSize(description.type()), getNullable(description.isNull()),
-                description.key(), description.defaultValue(), description.extra(), methodOptional.get());
+                description.key(), description.defaultValue(), description.extra(), isAutoIncrement(description.isAutoincrement()), methodOptional.get());
             tuples.add(tuple);
         }
         return tuples;
@@ -75,19 +71,18 @@ public class MapBuilder {
         List<Description> descriptionList = new ArrayList<>();
         DatabaseMetaData metaData = connection.getMetaData();
         List<String> primaryKeysColumns = new ArrayList<>();
+        final String COLUMN_NAME = "COLUMN_NAME";
         try (ResultSet rsColumn = metaData.getPrimaryKeys(null, null, table)) {
-            while (rsColumn.next()){
-                primaryKeysColumns.add(rsColumn.getString("COLUMN_NAME"));
+            while (rsColumn.next()) {
+                primaryKeysColumns.add(rsColumn.getString(COLUMN_NAME));
             }
         }
-
         List<String> uniqueIndexColumns = new ArrayList<>();
         List<String> nonUniqueIndexColumns = new ArrayList<>();
         try (ResultSet rsIndex = metaData.getIndexInfo(null, null, table, false, false)) {
-            while (rsIndex.next()){
-                String indexName = rsIndex.getString("INDEX_NAME");
-                String columnName = rsIndex.getString("COLUMN_NAME");
-                Boolean nonUnique = rsIndex.getBoolean("NON_UNIQUE");
+            while (rsIndex.next()) {
+                String columnName = rsIndex.getString(COLUMN_NAME);
+                boolean nonUnique = rsIndex.getBoolean("NON_UNIQUE");
                 Short ordinalPosition = rsIndex.getShort("ORDINAL_POSITION");
                 //trying to imitate mysql info from KEY in SHOW COLUMNS: https://dev.mysql.com/doc/refman/8.0/en/show-columns.html
                 //basically:
@@ -99,27 +94,27 @@ public class MapBuilder {
                 //If more than one of the Key values applies to a given column of a table, Key displays the one with the highest priority, in the order PRI, UNI, MUL.
                 //
                 //so I need information only about the first column of every index
-                if(ordinalPosition == 1){
-                    if(nonUnique){
+                if (ordinalPosition == 1) {
+                    if (nonUnique) {
                         nonUniqueIndexColumns.add(columnName);
-                    }else{
+                    } else {
                         uniqueIndexColumns.add(columnName);
                     }
                 }
 
             }
         }
-
-        try (ResultSet rsColumn = metaData.getColumns(null,null, table, null)) {
+        try (ResultSet rsColumn = metaData.getColumns(null, null, table, null)) {
             while (rsColumn.next()) {
                 String columnName = rsColumn.getString("COLUMN_NAME");
                 String type = rsColumn.getString("DATA_TYPE");
                 String size = rsColumn.getString("COLUMN_SIZE");
                 String isNull = rsColumn.getString("IS_NULLABLE");
                 String key = calculateKey(columnName, primaryKeysColumns, uniqueIndexColumns, nonUniqueIndexColumns);
-                String defaultValue = rsColumn.getString(5);
-                String extra = rsColumn.getString(6);
-                descriptionList.add(new Description(columnName, type, size, isNull, key, defaultValue, extra));
+                String defaultValue = rsColumn.getString("COLUMN_DEF");
+                String extra = rsColumn.getString("REMARKS");
+                String isAutoIncrement = rsColumn.getString("IS_AUTOINCREMENT");
+                descriptionList.add(new Description(columnName, type, size, isNull, key, defaultValue, extra, isAutoIncrement));
             }
         } catch (SQLException e) {
             logger.error("Error mapping table {}", table, e);
@@ -127,20 +122,20 @@ public class MapBuilder {
         return descriptionList;
     }
 
-    private String calculateKey(String columnName, List<String> privateKeyColumns, List<String> uniqueIndexColumns, List<String> nonUniqueIndexColumns ){
-        if(privateKeyColumns.contains(columnName)){
+    private String calculateKey(String columnName, List<String> privateKeyColumns, List<String> uniqueIndexColumns, List<String> nonUniqueIndexColumns) {
+        if (privateKeyColumns.contains(columnName)) {
             return "PRI";
         }
-        if(uniqueIndexColumns.contains(columnName)){
+        if (uniqueIndexColumns.contains(columnName)) {
             return "UNI";
         }
-        if(nonUniqueIndexColumns.contains(columnName)){
+        if (nonUniqueIndexColumns.contains(columnName)) {
             return "MUL";
         }
         return "";
     }
 
-    private record Description(String columnName, String type, String size, String isNull, String key, String defaultValue, String extra) {
+    private record Description(String columnName, String type, String size, String isNull, String key, String defaultValue, String extra, String isAutoincrement) {
 
     }
 
@@ -172,6 +167,10 @@ public class MapBuilder {
 
     private boolean getNullable(String isNull) {
         return isNull.toLowerCase(Locale.ROOT).contains("null");
+    }
+
+    private boolean isAutoIncrement(String isAutoincrement) {
+        return isAutoincrement.toLowerCase(Locale.ROOT).equalsIgnoreCase("yes");
     }
 
 }

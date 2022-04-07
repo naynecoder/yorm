@@ -38,7 +38,7 @@ public enum DbType {
     public static DbType getType(String str) throws YormException {
         int sqlType = Integer.parseInt(str);
         DbType dbType = MAP.get(sqlType);
-        if(dbType == null){
+        if (dbType == null) {
             throw new YormException("There is no DbType for sqlType:" + sqlType);
         }
         return dbType;

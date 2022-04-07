@@ -112,7 +112,7 @@ public class QueryFind {
                     case FLOAT -> preparedStatement.setFloat(paramIndex, (float) obj);
                     case DECIMAL -> preparedStatement.setBigDecimal(paramIndex, (BigDecimal) obj);
                     case DATE -> preparedStatement.setDate(paramIndex, Date.valueOf((LocalDate) obj));
-                    case DATETIME, TIMESTAMP -> preparedStatement.setTimestamp(paramIndex, Timestamp.valueOf((LocalDateTime) obj));
+                    case TIMESTAMP -> preparedStatement.setTimestamp(paramIndex, Timestamp.valueOf((LocalDateTime) obj));
                     default -> throw new YormException("Couldn't find type for " + filteringFieldValue.fieldName());
                 }
                 paramIndex++;

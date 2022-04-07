@@ -5,6 +5,6 @@ import org.yorm.util.DbType;
 
 public record YormTuple(String dbFieldName, String objectName, DbType type,
                         int size, boolean isNull, String key, String defaultValue,
-                        String extra, Method method) {
+                        String extra, boolean isAutoIncrement, Method method) {
 
 }

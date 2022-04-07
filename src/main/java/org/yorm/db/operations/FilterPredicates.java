@@ -6,7 +6,8 @@ import org.yorm.YormTuple;
 
 public class FilterPredicates {
 
-    private FilterPredicates(){}
+    private FilterPredicates() {
+    }
 
     public static Predicate<YormTuple> getId() {
         return yt -> yt.key() != null
@@ -16,7 +17,7 @@ public class FilterPredicates {
     public static Predicate<YormTuple> filterAutoIncrementKey() {
         return yt -> yt.key() != null
             && yt.key().equalsIgnoreCase("PRI")
-            && yt.extra().equalsIgnoreCase("auto_increment");
+            && yt.isAutoIncrement();
     }
 
     public static Predicate<Method> getMethod(String fieldName) {
@@ -26,7 +27,7 @@ public class FilterPredicates {
     public static Predicate<YormTuple> filterOutPrimaryKeys() {
         return yt -> yt.key() == null
             || yt.key().isEmpty()
-            || !(yt.key().equalsIgnoreCase("PRI") && yt.extra().equalsIgnoreCase("auto_increment"));
+            || !(yt.key().equalsIgnoreCase("PRI") && yt.isAutoIncrement());
     }
 
     public static Predicate<YormTuple> filterKeepKeys() {
