@@ -1,21 +1,6 @@
 package org.yorm;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import javax.sql.DataSource;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.yorm.exception.YormException;
 import org.yorm.records.Company;
 import org.yorm.records.Invoice;
@@ -23,15 +8,22 @@ import org.yorm.records.Person;
 import org.yorm.util.DbType;
 import org.yorm.utils.TestConnectionFactory;
 
+import javax.sql.DataSource;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class YormTest {
+class YormPostgreSqlTest {
 
     private static DataSource ds;
     private static Yorm yorm;
 
     @BeforeAll
     private static void initDb() {
-        ds = TestConnectionFactory.getConnection();
+        ds = TestConnectionFactory.getPostgreSqlConnection();
         yorm = new Yorm(ds);
     }
 
@@ -43,26 +35,29 @@ class YormTest {
         assertNotNull(map);
         List<YormTuple> tuples = map.tuples();
         assertEquals(5, tuples.size());
+
         YormTuple tuple0 = tuples.get(0);
         assertEquals("id", tuple0.dbFieldName());
         assertEquals(DbType.INTEGER, tuple0.type());
         assertEquals("id", tuple0.method().getName());
         assertEquals("id", tuple0.objectName());
-        assertEquals("PRI", tuple0.key());
+        assertTrue(tuple0.isPrimaryKey());
+
         YormTuple tuple3 = tuples.get(3);
         assertEquals("last_login", tuple3.dbFieldName());
         assertEquals(DbType.TIMESTAMP, tuple3.type());
         assertEquals("lastLogin", tuple3.method().getName());
         assertEquals("lastLogin", tuple3.objectName());
         assertEquals("last_login", tuple3.dbFieldName());
-        assertTrue(tuple3.key().isEmpty());
+        assertFalse(tuple3.isPrimaryKey());
+
         YormTuple tuple4 = tuples.get(4);
         assertEquals("company_id", tuple4.dbFieldName());
         assertEquals(DbType.INTEGER, tuple0.type());
         assertEquals("companyId", tuple4.method().getName());
         assertEquals("companyId", tuple4.objectName());
         assertEquals("company_id", tuple4.dbFieldName());
-        assertEquals("MUL", tuple4.key());
+        assertFalse(tuple4.isPrimaryKey());
     }
 
     @Test
@@ -160,7 +155,7 @@ class YormTest {
     @Test
     @Order(9)
     void getFiltering() throws YormException {
-        Person personFilter1 = new Person(0, "harry", "john", null, 0);
+        Person personFilter1 = new Person(0, "Harry", "john", null, 0);
         Person personFilter2 = new Person(0, null, null, null, 2);
         List<Person> list = List.of(personFilter1, personFilter2);
         List<Person> personList = yorm.find(list);
@@ -171,8 +166,6 @@ class YormTest {
         assertEquals("Sauron", person1.name());
         assertEquals("sauron@mordor.com", person1.email());
         assertEquals(2, person1.companyId());
-        List<Person> list2 = yorm.from(Person.class).where(Person::email).like(".com").find();
-        assertFalse(list2.isEmpty());
     }
 
     @Test
@@ -193,18 +186,12 @@ class YormTest {
         assertEquals("john.doe@um.com", personResultBefore.email());
         assertEquals(1, personResultBefore.companyId());
         Person person = new Person(1, "Draco", "draco.malfoy@hogwarts.com", localDateTime, 1);
-        yorm.save(person);//Update because the id is 1
+        yorm.update(person);
         Person personResult = yorm.find(Person.class, 1);
         assertEquals(1, personResult.id());
         assertEquals("Draco", personResult.name());
         assertEquals("draco.malfoy@hogwarts.com", personResult.email());
         assertEquals(1, personResult.companyId());
-        Person person2 = new Person(1, "Lucius", "lucius.malfoy@hogwarts.com", localDateTime, 1);
-        yorm.update(person2);
-        Person personResult2 = yorm.find(Person.class, 1);
-        assertEquals(1, personResult2.id());
-        assertEquals("Lucius", personResult2.name());
-        assertEquals("lucius.malfoy@hogwarts.com", personResult2.email());
     }
 
     @Test
@@ -224,20 +211,4 @@ class YormTest {
         Invoice invoice = new Invoice(1, 1);
         assertThrows(YormException.class, () -> yorm.insert(invoice));
     }
-
-    @Test
-    @Order(14)
-    void testFluentWhere() throws YormException {
-        List<Person> list = yorm.from(Person.class).where(Person::email).like(".com").find();
-        assertFalse(list.isEmpty());
-        List<Person> secondList = yorm.from(Person.class).where(Person::companyId).equalTo(100)
-            .or(Person::email).like("hogwarts")
-            .find();
-        assertEquals(2, secondList.size());
-        List<Person> thirdList = yorm.from(Person.class).where(Person::name).equalTo("Hermione")
-            .and(Person::lastLogin).greaterThan(LocalDateTime.of(2019, 01, 01, 0, 0, 0))
-            .find();
-        assertEquals(1, thirdList.size());
-    }
-
 }

@@ -13,6 +13,8 @@ public enum WhereOperator {
     }
 
     public String getOperator() {
-        return operator;
+        return this.operator;
     }
+
+
 }

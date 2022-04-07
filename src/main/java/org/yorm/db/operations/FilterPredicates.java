@@ -6,18 +6,14 @@ import org.yorm.YormTuple;
 
 public class FilterPredicates {
 
-    private FilterPredicates() {
-    }
+    private FilterPredicates(){}
 
     public static Predicate<YormTuple> getId() {
-        return yt -> yt.key() != null
-            && yt.dbFieldName().equalsIgnoreCase("id");
+        return yt -> yt.isPrimaryKey() && yt.dbFieldName().equalsIgnoreCase("id");
     }
 
     public static Predicate<YormTuple> filterAutoIncrementKey() {
-        return yt -> yt.key() != null
-            && yt.key().equalsIgnoreCase("PRI")
-            && yt.isAutoIncrement();
+        return yt -> yt.isPrimaryKey() && yt.isAutoincrement();
     }
 
     public static Predicate<Method> getMethod(String fieldName) {
@@ -25,13 +21,11 @@ public class FilterPredicates {
     }
 
     public static Predicate<YormTuple> filterOutPrimaryKeys() {
-        return yt -> yt.key() == null
-            || yt.key().isEmpty()
-            || !(yt.key().equalsIgnoreCase("PRI") && yt.isAutoIncrement());
+        return yt -> !yt.isPrimaryKey();
     }
 
     public static Predicate<YormTuple> filterKeepKeys() {
-        return yt -> yt.key() != null && !yt.key().isEmpty();
+        return YormTuple::isPrimaryKey;
     }
 
 }
