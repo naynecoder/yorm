@@ -29,7 +29,7 @@ class PerformanceTest {
 
     @BeforeAll
     private static void initDb() {
-        ds = TestConnectionFactory.getConnection();
+        ds = TestConnectionFactory.getMySqlConnection();
         yorm = new Yorm(ds);
     }
 

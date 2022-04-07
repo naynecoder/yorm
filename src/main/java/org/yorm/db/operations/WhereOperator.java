@@ -12,7 +12,7 @@ public enum WhereOperator {
         this.operator = operator;
     }
 
-    public String getOperor() {
+    public String getOperator() {
         return this.operator;
     }
 

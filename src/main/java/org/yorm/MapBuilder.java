@@ -41,7 +41,8 @@ public class MapBuilder {
         if(logger.isDebugEnabled()) {
             logger.debug("Record:{} mapped to table:{}", recordClass.getName(), dbTable);
             for (var tuple : tuples) {
-                logger.debug("  Field:{} mapped to column:{} type:{} nullable:{}", tuple.objectName(), tuple.dbFieldName(), tuple.type(), tuple.isNull());
+                logger.debug("  Field:{} mapped to column:{} type:{} nullable:{} primaryKey:{} autoIncrement:{}",
+                        tuple.objectName(), tuple.dbFieldName(), tuple.type(), tuple.isNullable(), tuple.isPrimaryKey(), tuple.isAutoincrement());
             }
         }
 
@@ -64,11 +65,25 @@ public class MapBuilder {
             }
             alreadyUsedObjectFields.add(objectField);
             var tuple = new YormTuple(description.columnName(), objectField, DbType.getType(description.type()),
-                getSize(description.type()), getNullable(description.isNull()),
-                description.key(), description.defaultValue(), description.extra(), methodOptional.get());
+                Integer.parseInt(description.size()), yesNoToBoolean(description.isNullable()),
+                description.isPrimaryKey(), yesNoToBoolean(description.isAutoincrement()), methodOptional.get());
             tuples.add(tuple);
         }
         return tuples;
+    }
+
+    private Boolean yesNoToBoolean(String str) throws YormException {
+        if(str == null || str.isBlank()){
+            return null;
+        }
+        if("YES".equalsIgnoreCase(str)){
+            return true;
+        }
+        if("NO".equalsIgnoreCase(str)){
+            return false;
+        }
+        throw new YormException("Invalid value " + str + ". Must be YES or NO or null or blank");
+
     }
 
     private List<Description> getDescription(Connection connection, String table) throws SQLException {
@@ -80,46 +95,15 @@ public class MapBuilder {
                 primaryKeysColumns.add(rsColumn.getString("COLUMN_NAME"));
             }
         }
-
-        List<String> uniqueIndexColumns = new ArrayList<>();
-        List<String> nonUniqueIndexColumns = new ArrayList<>();
-        try (ResultSet rsIndex = metaData.getIndexInfo(null, null, table, false, false)) {
-            while (rsIndex.next()){
-                String indexName = rsIndex.getString("INDEX_NAME");
-                String columnName = rsIndex.getString("COLUMN_NAME");
-                Boolean nonUnique = rsIndex.getBoolean("NON_UNIQUE");
-                Short ordinalPosition = rsIndex.getShort("ORDINAL_POSITION");
-                //trying to imitate mysql info from KEY in SHOW COLUMNS: https://dev.mysql.com/doc/refman/8.0/en/show-columns.html
-                //basically:
-                //Key: Whether the column is indexed:
-                //If Key is empty, the column either is not indexed or is indexed only as a secondary column in a multiple-column, nonunique index.
-                //If Key is PRI, the column is a PRIMARY KEY or is one of the columns in a multiple-column PRIMARY KEY.
-                //If Key is UNI, the column is the first column of a UNIQUE index.
-                //If Key is MUL, the column is the first column of a nonunique index in which multiple occurrences of a given value are permitted within the column.
-                //If more than one of the Key values applies to a given column of a table, Key displays the one with the highest priority, in the order PRI, UNI, MUL.
-                //
-                //so I need information only about the first column of every index
-                if(ordinalPosition == 1){
-                    if(nonUnique){
-                        nonUniqueIndexColumns.add(columnName);
-                    }else{
-                        uniqueIndexColumns.add(columnName);
-                    }
-                }
-
-            }
-        }
-
         try (ResultSet rsColumn = metaData.getColumns(null,null, table, null)) {
             while (rsColumn.next()) {
                 String columnName = rsColumn.getString("COLUMN_NAME");
                 String type = rsColumn.getString("DATA_TYPE");
                 String size = rsColumn.getString("COLUMN_SIZE");
                 String isNull = rsColumn.getString("IS_NULLABLE");
-                String key = calculateKey(columnName, primaryKeysColumns, uniqueIndexColumns, nonUniqueIndexColumns);
-                String defaultValue = rsColumn.getString(5);
-                String extra = rsColumn.getString(6);
-                descriptionList.add(new Description(columnName, type, size, isNull, key, defaultValue, extra));
+                String isAutoincrement = rsColumn.getString("IS_AUTOINCREMENT");
+                boolean isPrimaryKey = primaryKeysColumns.contains(columnName);
+                descriptionList.add(new Description(columnName, type, size, isNull, isPrimaryKey, isAutoincrement));
             }
         } catch (SQLException e) {
             logger.error("Error mapping table {}", table, e);
@@ -127,20 +111,9 @@ public class MapBuilder {
         return descriptionList;
     }
 
-    private String calculateKey(String columnName, List<String> privateKeyColumns, List<String> uniqueIndexColumns, List<String> nonUniqueIndexColumns ){
-        if(privateKeyColumns.contains(columnName)){
-            return "PRI";
-        }
-        if(uniqueIndexColumns.contains(columnName)){
-            return "UNI";
-        }
-        if(nonUniqueIndexColumns.contains(columnName)){
-            return "MUL";
-        }
-        return "";
-    }
 
-    private record Description(String columnName, String type, String size, String isNull, String key, String defaultValue, String extra) {
+
+    private record Description(String columnName, String type, String size, String isNullable, Boolean isPrimaryKey, String isAutoincrement) {
 
     }
 
@@ -159,19 +132,6 @@ public class MapBuilder {
 
     private String cleanName(String str) {
         return str.toLowerCase(Locale.ROOT).replace("_", "");
-    }
-
-    private int getSize(String type) {
-        int pos = type.indexOf('(');
-        if (pos == -1) {
-            return -1;
-        }
-        int pos2 = type.indexOf(')');
-        return Integer.parseInt(type.substring(pos + 1, pos2));
-    }
-
-    private boolean getNullable(String isNull) {
-        return isNull.toLowerCase(Locale.ROOT).contains("null");
     }
 
 }
