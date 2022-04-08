@@ -64,10 +64,10 @@ class YormPostgreSqlTest {
     @Order(2)
     void saveCompany() throws YormException {
         Company company = new Company(0, "Hogwarts", "GB", LocalDate.of(1968, 2, 12), 154.1f, true);
-        int id = yorm.save(company);
+        long id = yorm.save(company);
         assertEquals(1, id);
         Company company2 = new Company(0, "Mordor", "ZZ", LocalDate.of(114, 11, 5), 0f, false);
-        int id2 = yorm.save(company2);
+        long id2 = yorm.save(company2);
         assertEquals(2, id2);
     }
 
@@ -87,7 +87,7 @@ class YormPostgreSqlTest {
     @Order(4)
     void savePerson() throws YormException {
         Person person = new Person(0, "John", "john.doe@um.com", LocalDateTime.of(2022, 3, 22, 11, 14, 13), 1);
-        int idPerson = yorm.save(person);
+        long idPerson = yorm.save(person);
         assertEquals(1, idPerson);
         Person personWrong = new Person(0, "John", "john.doe@um.com", LocalDateTime.of(2022, 1, 15, 7, 53, 21), 0);
         assertThrows(YormException.class, () -> yorm.save(personWrong));

@@ -40,13 +40,13 @@ public class QueryFind {
         return resultList;
     }
 
-    public static <T extends Record> T findById(DataSource ds, YormTable yormTable, int id) throws YormException {
+    public static <T extends Record> T findById(DataSource ds, YormTable yormTable, long id) throws YormException {
         List<YormTuple> tuples = yormTable.tuples();
         String query = yormTable.selectAllFromTable() + " WHERE ID = ?";
         Object result = null;
         try (Connection connection = ds.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setInt(1, id);
+            preparedStatement.setLong(1, id);
             ResultSet rs = preparedStatement.executeQuery();
             if (rs.next()) {
                 Object[] values = new Object[tuples.size()];
@@ -62,11 +62,13 @@ public class QueryFind {
         return (T) result;
     }
 
-    public static <T extends Record> List<T> findByForeignId(DataSource ds, YormTable yormTable, String fieldName, int id) throws YormException {
+    public static <T extends Record> List<T> findByForeignId(DataSource ds, YormTable yormTable, String fieldName, long id) throws YormException {
         List<T> resultList = new ArrayList<>();
         List<YormTuple> tuples = yormTable.tuples();
         String query = yormTable.selectAllFromTable() + " WHERE " + fieldName + " = ?";
         try (Connection connection = ds.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query.toString())) {
+            preparedStatement.setLong(1, id);
             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setInt(1, id);
             ResultSet rs = preparedStatement.executeQuery();

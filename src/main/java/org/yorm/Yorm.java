@@ -24,10 +24,10 @@ public class Yorm {
         this.queryBuilder = new QueryBuilder(ds);
     }
 
-    public int save(Record recordObj) throws YormException {
+    public long save(Record recordObj) throws YormException {
         String objectName = getRecordName(recordObj);
         YormTable yormTable = getTable(objectName, recordObj.getClass());
-        int result = 0;
+        long result = 0;
         try {
             result = queryBuilder.save(ds, recordObj, yormTable);
         } catch (InvocationTargetException | IllegalAccessException e) {
@@ -36,7 +36,7 @@ public class Yorm {
         return result;
     }
 
-    public int insert(Record recordObj) throws YormException {
+    public long insert(Record recordObj) throws YormException {
         String objectName = getRecordName(recordObj);
         YormTable yormTable = getTable(objectName, recordObj.getClass());
         return queryBuilder.insert(ds, recordObj, yormTable);
@@ -59,7 +59,7 @@ public class Yorm {
         queryBuilder.update(ds, recordObj, yormTable);
     }
 
-    public <T extends Record> T find(Class<T> recordObject, int id) throws YormException {
+    public <T extends Record> T find(Class<T> recordObject, long id) throws YormException {
         String objectName = getClassName(recordObject);
         YormTable yormTable = getTable(objectName, recordObject);
         return queryBuilder.find(ds, yormTable, id);
@@ -115,7 +115,7 @@ public class Yorm {
         return recordObj.getClass().getSimpleName().toLowerCase(Locale.ROOT);
     }
 
-    public <T extends Record> boolean delete(Class<T> recordObject, int id) throws YormException {
+    public <T extends Record> boolean delete(Class<T> recordObject, long id) throws YormException {
         String objectName = getClassName(recordObject);
         YormTable yormTable = getTable(objectName, recordObject);
         return queryBuilder.delete(ds, yormTable, id);
