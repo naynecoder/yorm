@@ -88,8 +88,7 @@ public class Yorm {
     public <T extends Record> Select<T> from(Class<T> referenceObject) throws YormException {
         String referenceObjectName = getClassName(referenceObject);
         YormTable yormTable = getTable(referenceObjectName, referenceObject);
-        //return new Select<>(ds, referenceObject, yormTable);
-        return new Select(ds, yormTable);
+        return new Select<>(ds, yormTable);
     }
 
     public <T extends Record> List<T> find(List<T> list) throws YormException {

@@ -36,12 +36,11 @@ public class MapBuilder {
         } catch (SQLException | YormException e) {
             throw new YormException("Error mapping record " + dbTable, e);
         }
-
-        if(logger.isDebugEnabled()) {
+        if (logger.isDebugEnabled()) {
             logger.debug("Record:{} mapped to table:{}", recordClass.getName(), dbTable);
             for (var tuple : tuples) {
                 logger.debug("  Field:{} mapped to column:{} type:{} nullable:{} primaryKey:{} autoIncrement:{}",
-                        tuple.objectName(), tuple.dbFieldName(), tuple.type(), tuple.isNullable(), tuple.isPrimaryKey(), tuple.isAutoincrement());
+                    tuple.objectName(), tuple.dbFieldName(), tuple.type(), tuple.isNullable(), tuple.isPrimaryKey(), tuple.isAutoincrement());
             }
         }
         Constructor<Record> constructor = (Constructor<Record>) recordClass.getConstructors()[0];
@@ -70,13 +69,13 @@ public class MapBuilder {
     }
 
     private Boolean yesNoToBoolean(String str) throws YormException {
-        if(str == null || str.isBlank()){
+        if (str == null || str.isBlank()) {
             return null;
         }
-        if("YES".equalsIgnoreCase(str)){
+        if ("YES".equalsIgnoreCase(str)) {
             return true;
         }
-        if("NO".equalsIgnoreCase(str)){
+        if ("NO".equalsIgnoreCase(str)) {
             return false;
         }
         throw new YormException("Invalid value " + str + ". Must be YES or NO or null or blank");
@@ -88,11 +87,11 @@ public class MapBuilder {
         DatabaseMetaData metaData = connection.getMetaData();
         List<String> primaryKeysColumns = new ArrayList<>();
         try (ResultSet rsColumn = metaData.getPrimaryKeys(null, null, table)) {
-            while (rsColumn.next()){
+            while (rsColumn.next()) {
                 primaryKeysColumns.add(rsColumn.getString("COLUMN_NAME"));
             }
         }
-        try (ResultSet rsColumn = metaData.getColumns(null,null, table, null)) {
+        try (ResultSet rsColumn = metaData.getColumns(null, null, table, null)) {
             while (rsColumn.next()) {
                 String columnName = rsColumn.getString("COLUMN_NAME");
                 String type = rsColumn.getString("DATA_TYPE");
@@ -107,7 +106,6 @@ public class MapBuilder {
         }
         return descriptionList;
     }
-
 
 
     private record Description(String columnName, String type, String size, String isNullable, Boolean isPrimaryKey, String isAutoincrement) {

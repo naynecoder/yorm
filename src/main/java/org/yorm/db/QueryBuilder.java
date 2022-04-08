@@ -62,7 +62,7 @@ public class QueryBuilder {
         return QueryFind.findById(ds, yormTable, id);
     }
 
-    public <T extends Record> List<T> find(DataSource ds, Record filterObject, YormTable yormTableFilter, YormTable yormTableObject)
+    public <T extends Record> List<T> find(DataSource ds, Record filterObject, YormTable<T> yormTableFilter, YormTable<T> yormTableObject)
         throws InvocationTargetException, IllegalAccessException, YormException {
         String foreignKeyFilter = yormTableFilter.dbTable() + "_id";
         String foreignKey = yormTableFilter.dbTable() + "_id";

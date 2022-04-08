@@ -2,7 +2,7 @@ package org.yorm.db.operations;
 
 import org.yorm.YormTable;
 import org.yorm.YormTuple;
-import org.yorm.db.FieldValue;
+import org.yorm.db.FilteringFieldValue;
 import org.yorm.exception.YormException;
 import org.yorm.util.RowRecordConverter;
 
@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class QueryFind {
+
     private static final RowRecordConverter rowRecordConverter = new RowRecordConverter();
 
     private QueryFind() {
@@ -127,7 +128,6 @@ public class QueryFind {
             params = rowRecordConverter.rowToRecord(rs, values, params, tuple.dbFieldName(), tuple.type());
         }
     }
-
 
 
 }

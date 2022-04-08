@@ -14,7 +14,7 @@ import org.yorm.exception.YormException;
 
 public class Select<T extends Record> {
 
-    private YormTable yormTable;
+    private YormTable<T> yormTable;
     private List<FilteringFieldValue> list = new ArrayList<>();
     private DataSource ds;
 
