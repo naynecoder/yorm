@@ -12,7 +12,15 @@ public class RowRecordConverter {
         switch (type) {
             //MySql does not have a truly boolean type, bool/boolean are a synonym of tinyint(1)
             case TINYINT, BIT -> preparedStatement.setBoolean(paramIndex, (boolean) value);
-            case SMALLINT, INTEGER -> preparedStatement.setInt(paramIndex, (int) value);
+            case SMALLINT, INTEGER -> {
+                if(value instanceof Integer) {
+                    preparedStatement.setInt(paramIndex, (int) value);
+                } else if(value instanceof Long){
+                    preparedStatement.setLong(paramIndex, (long) value);
+                } else {
+                    throw new YormException("Incompatible value:" + value + " of class:" + value.getClass().getName() + " for column type:" + type);
+                }
+            }
             case BIGINT -> preparedStatement.setLong(paramIndex, (long) value);
             case VARCHAR, CHAR -> preparedStatement.setString(paramIndex, (String) value);
             case DOUBLE -> preparedStatement.setDouble(paramIndex, (double) value);

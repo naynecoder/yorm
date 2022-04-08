@@ -50,9 +50,9 @@ public class QuerySave {
         }
     }
 
-    public static int forceInsert(DataSource ds, Record obj, YormTable yormTable) throws YormException {
+    public static long forceInsert(DataSource ds, Record obj, YormTable yormTable) throws YormException {
         String op = "?,";
-        int id = 0;
+        long id = 0;
         List<YormTuple> tuples = yormTable.tuples();
         StringBuilder query = new StringBuilder("INSERT INTO ");
         query.append(yormTable.dbTable())
@@ -77,9 +77,9 @@ public class QuerySave {
         return id;
     }
 
-    public static int insert(DataSource ds, Record obj, YormTable yormTable) throws YormException {
+    public static long insert(DataSource ds, Record obj, YormTable yormTable) throws YormException {
         String op = "?,";
-        int id = 0;
+        long id = 0;
         Predicate<YormTuple> predicateFilterOutPrimaryKeys = FilterPredicates.filterOutPrimaryKeys();
         List<YormTuple> tuples = yormTable.tuples().stream().filter(predicateFilterOutPrimaryKeys).toList();
         StringBuilder query = new StringBuilder("INSERT INTO ");

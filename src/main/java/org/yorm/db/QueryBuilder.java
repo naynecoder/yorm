@@ -24,7 +24,7 @@ public class QueryBuilder {
         this.ds = ds;
     }
 
-    public int insert(DataSource ds, Record obj, YormTable yormTable) throws YormException {
+    public long insert(DataSource ds, Record obj, YormTable yormTable) throws YormException {
         return QuerySave.forceInsert(ds, obj, yormTable);
     }
 
@@ -36,14 +36,14 @@ public class QueryBuilder {
         QuerySave.bulkInsert(ds, list, yormTable);
     }
 
-    public int save(DataSource ds, Record obj, YormTable yormTable) throws InvocationTargetException, IllegalAccessException, YormException {
+    public long save(DataSource ds, Record obj, YormTable yormTable) throws InvocationTargetException, IllegalAccessException, YormException {
         Optional<YormTuple> idField = yormTable.tuples().stream().filter(FilterPredicates.filterAutoIncrementKey()).findFirst();
-        int idInsert = 0;
+        long idInsert = 0;
         if (idField.isEmpty()) {
             idInsert = QuerySave.forceInsert(ds, obj, yormTable);
         } else {
             YormTuple yormTuple = idField.get();
-            int id = (int) yormTuple.method().invoke(obj);
+            long id = (long) yormTuple.method().invoke(obj);
             if (id == 0) {
                 idInsert = QuerySave.insert(ds, obj, yormTable);
             } else {
@@ -53,11 +53,11 @@ public class QueryBuilder {
         return idInsert;
     }
 
-    public boolean delete(DataSource ds, YormTable yormTable, int id) throws YormException {
+    public boolean delete(DataSource ds, YormTable yormTable, long id) throws YormException {
         return QueryDelete.delete(ds, yormTable, id);
     }
 
-    public <T extends Record> T get(DataSource ds, YormTable yormTable, int id) throws YormException {
+    public <T extends Record> T get(DataSource ds, YormTable yormTable, long id) throws YormException {
         return QueryFind.findById(ds, yormTable, id);
     }
 
@@ -78,7 +78,7 @@ public class QueryBuilder {
         if (optionalFilteringTupleId.isEmpty()) {
             return new ArrayList<>();
         }
-        int id = (int) optionalFilteringTupleId.get().method().invoke(filterObject);
+        long id = (long) optionalFilteringTupleId.get().method().invoke(filterObject);
         return QueryFind.findByForeignId(ds, yormTableObject, foreignKey, id);
     }
 
@@ -91,7 +91,7 @@ public class QueryBuilder {
         return QueryFind.findFiltering(ds, yormTable, fieldValueList);
     }
 
-    private <T extends Record> List<FieldValue> getFieldValues(List<T> list, YormTable yormTable) throws IllegalAccessException, InvocationTargetException {
+    private <T extends Record> List<FieldValue> getFieldValues(List<T> list, YormTable yormTable) throws IllegalAccessException, InvocationTargetException, YormException {
         List<FieldValue> fieldValueList = new ArrayList<>();
         List<YormTuple> yormTuples = yormTable.tuples();
         for (Record obj : list) {
@@ -106,7 +106,7 @@ public class QueryBuilder {
         return fieldValueList;
     }
 
-    private void mapValues(List<FieldValue> fieldValueList, YormTuple yormTuple, Object value) {
+    private void mapValues(List<FieldValue> fieldValueList, YormTuple yormTuple, Object value) throws YormException {
         String dbFieldName = yormTuple.dbFieldName();
         DbType type = yormTuple.type();
         switch (type) {
@@ -117,10 +117,20 @@ public class QueryBuilder {
                 }
             }
             case SMALLINT, INTEGER, BIT -> {
-                int valueInt = (int) value;
-                boolean idWithoutValue = dbFieldName.contains("id") && valueInt < 1;
-                if (!idWithoutValue) {
-                    fieldValueList.add(new FieldValue(dbFieldName, type, valueInt, WhereOperator.EQUALS));
+                if(value instanceof Integer) {
+                    int valueInt = (int) value;
+                    boolean idWithoutValue = dbFieldName.contains("id") && valueInt < 1;
+                    if (!idWithoutValue) {
+                        fieldValueList.add(new FieldValue(dbFieldName, type, valueInt, WhereOperator.EQUALS));
+                    }
+                } else if (value instanceof Long) {
+                    long valueLong = (long) value;
+                    boolean idWithoutValue = dbFieldName.contains("id") && valueLong < 1;
+                    if (!idWithoutValue) {
+                        fieldValueList.add(new FieldValue(dbFieldName, type, valueLong, WhereOperator.EQUALS));
+                    }
+                } else {
+                    throw new YormException("Incompatible value:" + value + " of class:" + value.getClass().getName() + " for column type:" + type);
                 }
             }
             case BIGINT -> {
