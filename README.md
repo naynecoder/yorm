@@ -17,11 +17,9 @@ Java Records usually are a perfect fit for basic CRUD operations, and here is wh
 - Your tables contain auto increment ids
 - You don't need complex INNER JOIN queries, just basic CRUD
 
-Although the Java industry offers very well maintained ORM solutions like Hibernate or Jooq, they tend not to work that well
-with Java Records. **Yorm** on the other side is specifically designed to leverage this Java capability.
+Although the Java industry offers very well maintained ORM solutions like [Hibernate] or [Jooq], they tend not to work that well with Java Records. **Yorm** on the other side is specifically designed to leverage this Java capability.
 
-Due to the immutable nature of Java Records, **Yorm** cannot be understood as a persistent ORM, not even as an ORM, as there aren't really
-any relationships.
+Due to the immutable nature of Java Records, **Yorm** cannot be understood as a persistent ORM, not even as an ORM, as there aren't really any relationships.
 ## Features
 
 - No need to generate classes
@@ -39,7 +37,8 @@ When a Java Record is operated with **Yorm**, a reflection inspection will came 
 *Yorm* has been designed to need very few dependencies:
 
 - [HikariCP] - Hikari, to deal with the database
-- [MySql] - So far, the only database officially supported
+- [MySql] - Database supported and tested
+- [PostgreSql] - Database supported and tested, courtesy of [PabloGrisafi]
 - [Junit 5] - For the unit tests
 - [TestContainers] - Also for the unit tests
 - [Slf4j] - Logging is usually useful
@@ -164,6 +163,23 @@ Let's review this one a bit. **Yorm** deals with Records. Here we have defined t
 ```sql
 SELECT id, name, email, company_id FROM person WHERE name like '%harry%' OR email like '%john%' OR company_id=2
 ```
+Based on [Benjiql] idea, **Yorm** also has some sort of fluent API capabilities to find records. The previous example could also be written like:
+```java
+List<Person> personList = yorm.from(Person.class).where(Person::name).like("harry")
+    .or(Person::email).like("john")
+    .or(Person::companyId).equalTo(2)
+    .find();
+```
+**Yorm** can chain operands to build SQL alike sentences just with code:
+```java
+List<Person> thirdList = yorm.from(Person.class).where(Person::name).equalTo("John")
+    .and(Person::lastLogin).greaterThan(LocalDateTime.of(2019, 01, 01, 0, 0, 0))
+    .find();
+```
+Which translated to SQL would be:
+```sql
+SELECT id, name, email, last_login, company_id FROM person WHERE name = 'John' AND last_login >= '2019-01-01 00:00' 
+```
 As a final note, Yorm works just by creating an instance of Yorm with a *javax.sql.DataSource*:
 ```java
 DataSource ds = DbConnector.getDatasource(parameters);
@@ -201,8 +217,13 @@ Apache 2.0
 [//]: # (These are reference links used in the body of this note and get stripped out when the markdown processor does its job. There is no need to format nicely because it shouldn't be seen. Thanks SO - http://stackoverflow.com/questions/4823468/store-comments-in-markdown-syntax)
 
 [HikariCP]: <https://github.com/brettwooldridge/HikariCP>
-[Mysql]: <https://https://www.mysql.com>
+[Mysql]: <https://www.mysql.com>
+[PostgreSql]: <https://www.postgresql.org/>
 [Junit 5]: <https://junit.org/junit5/>
 [TestContainers]: <https://www.testcontainers.org/>
 [Slf4j]: <https://www.slf4j.org/manual.html/>
+[PabloGrisafi]: <https://github.com/pablogrisafi1975>
+[Hibernate]: <https://hibernate.org/>
+[Jooq]: <http://www.jooq.org/>
+[Benjiql]: <https://github.com/benjiman/benjiql>
    
