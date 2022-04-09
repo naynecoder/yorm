@@ -1,7 +1,10 @@
 # Yorm
 ## _Yet another ORM_
 
-[![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://travis-ci.org/joemccann/dillinger)
+![Build Status](https://github.com/naynecoder/yorm/passing.svg?branch=gm-pages)
+[![Version](https://img.shields.io/maven-central/v/org.yorm/yorm-bom?logo=apache-maven&style=flat)](https://search.maven.org/artifact/org.yorm/yorm-bom)
+![Supported JVM Versions](https://img.shields.io/badge/JVM-17-success.svg?style=flat&logo=Java)
+[![License](https://img.shields.io/github/license/naynecoder/yorm?style=flat&logo=apache&color=success)](https://www.apache.org/licenses/LICENSE-2.0)
 
 Yorm is a basic ORM-alike framework designed to work with Java Records, without class generation, neither annotations.
 In the world of microservices, there is a tendency to have very contained logic within every service,
