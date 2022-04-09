@@ -1,21 +1,27 @@
 package org.yorm.util;
 
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import org.yorm.exception.YormException;
 
 import java.math.BigDecimal;
-import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class RowRecordConverter {
+
     public void recordToRow(int paramIndex, PreparedStatement preparedStatement, String dbColumnName, Object value, DbType type) throws SQLException, YormException {
         switch (type) {
             //MySql does not have a truly boolean type, bool/boolean are a synonym of tinyint(1)
+            //Postgresql maps booleans to bits
             case TINYINT, BIT -> preparedStatement.setBoolean(paramIndex, (boolean) value);
             case SMALLINT, INTEGER -> {
-                if(value instanceof Integer) {
+                if (value instanceof Integer) {
                     preparedStatement.setInt(paramIndex, (int) value);
-                } else if(value instanceof Long){
+                } else if (value instanceof Long) {
                     preparedStatement.setLong(paramIndex, (long) value);
                 } else {
                     throw new YormException("Incompatible value:" + value + " of class:" + value.getClass().getName() + " for column type:" + type);

@@ -1,10 +1,10 @@
-package org.yorm.db.operations;
+package org.yorm.db.operations.operators;
 
 public enum WhereOperator {
-    OR("OR"),
     AND("AND"),
-    EQUALS("="),
-    LIKE("LIKE");
+    OR("OR"),
+    EMPTY("");
+
 
     private String operator;
 

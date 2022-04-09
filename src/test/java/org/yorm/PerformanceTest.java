@@ -35,52 +35,60 @@ class PerformanceTest {
 
     @Test
     void testPerformance() throws YormException {
-        Company company = new Company(1, "randomString", "ZZ", LocalDate.now(), 0,true);
+        int companyId = 1;
+        Company company = new Company(companyId, "randomString", "ZZ", LocalDate.now(), 0, true);
         yorm.insert(company);
         List<Long> metricsInsertingYorm = new ArrayList<>();
         List<Long> metricsFindingYorm = new ArrayList<>();
+        List<Long> metricsFindingYormFluent = new ArrayList<>();
         List<Long> metricsDeletingYorm = new ArrayList<>();
         int cycles = 15;
         int operations = 55;
         for (int op = 0; op < cycles; op++) {
-            Instant time1 = Instant.now();
+            Instant clockStart = Instant.now();
             massiveInsertWithYorm(operations);
-            Instant time2 = Instant.now();
-            metricsInsertingYorm.add(Duration.between(time1, time2).toMillis());
-            Instant time3 = Instant.now();
-            massiveGetWithYorm(operations, company);
-            Instant time4 = Instant.now();
-            metricsFindingYorm.add(Duration.between(time3, time4).toMillis());
-            Instant time5 = Instant.now();
+            Instant clockFinishes = Instant.now();
+            metricsInsertingYorm.add(Duration.between(clockStart, clockFinishes).toMillis());
+            clockStart = Instant.now();
+            massiveFindWithYorm(operations, company);
+            clockFinishes = Instant.now();
+            metricsFindingYorm.add(Duration.between(clockStart, clockFinishes).toMillis());
+            clockStart = Instant.now();
+            massiveFindWithYormFluentApi(operations, companyId);
+            clockFinishes = Instant.now();
+            metricsFindingYormFluent.add(Duration.between(clockStart, clockFinishes).toMillis());
+            clockStart = Instant.now();
             massiveDeletionWithYorm(operations);
-            Instant time6 = Instant.now();
-            metricsDeletingYorm.add(Duration.between(time5, time6).toMillis());
+            clockFinishes = Instant.now();
+            metricsDeletingYorm.add(Duration.between(clockStart, clockFinishes).toMillis());
         }
         List<Long> metricsInsertingJdbc = new ArrayList<>();
         List<Long> metricsFindingJdbc = new ArrayList<>();
         List<Long> metricsDeletingJdbc = new ArrayList<>();
         for (int op = 0; op < cycles; op++) {
-            Instant time1 = Instant.now();
+            Instant clockStart = Instant.now();
             massiveInsertWithJdbc(operations);
-            Instant time2 = Instant.now();
-            metricsInsertingJdbc.add(Duration.between(time1, time2).toMillis());
-            Instant time3 = Instant.now();
-            massiveGetWithJdbc(operations, company);
-            Instant time4 = Instant.now();
-            metricsFindingJdbc.add(Duration.between(time3, time4).toMillis());
-            Instant time5 = Instant.now();
+            Instant clockFinishes = Instant.now();
+            metricsInsertingJdbc.add(Duration.between(clockStart, clockFinishes).toMillis());
+            clockStart = Instant.now();
+            massiveFindWithJdbc(operations, company);
+            clockFinishes = Instant.now();
+            metricsFindingJdbc.add(Duration.between(clockStart, clockFinishes).toMillis());
+            clockStart = Instant.now();
             massiveDeletionWithJdbc(operations);
-            Instant time6 = Instant.now();
-            metricsDeletingJdbc.add(Duration.between(time5, time6).toMillis());
+            clockFinishes = Instant.now();
+            metricsDeletingJdbc.add(Duration.between(clockStart, clockFinishes).toMillis());
         }
         long averageInsertYorm = getAverage(metricsInsertingYorm);
         long averageInsertJdbc = getAverage(metricsInsertingJdbc);
         long averageDeleteYorm = getAverage(metricsDeletingYorm);
         long averageDeleteJdbc = getAverage(metricsDeletingJdbc);
         long averageFindingYorm = getAverage(metricsFindingYorm);
+        long averageFindingYormFluent = getAverage(metricsFindingYormFluent);
         long averageFindingJdbc = getAverage(metricsFindingJdbc);
         logger.info("Average Inserting: yorm: {} ms - Jdbc: {} ms", averageInsertYorm, averageInsertJdbc);
         logger.info("Average Finding: yorm {} ms - Jdbc: {} ms", averageFindingYorm, averageFindingJdbc);
+        logger.info("Average Finding: yorm fluent api {} ms - Jdbc: {} ms", averageFindingYormFluent, averageFindingJdbc);
         logger.info("Average Deleting: yorm {} ms - Jdbc: {} ms", averageDeleteYorm, averageDeleteJdbc);
         long maxInserting = 35;
         long maxFinding = 68;
@@ -113,9 +121,15 @@ class PerformanceTest {
         }
     }
 
-    public void massiveGetWithYorm(int operations, Company company) throws YormException {
+    public void massiveFindWithYorm(int operations, Company company) throws YormException {
         for (int k = 1; k < operations; k++) {
             yorm.find(Person.class, company);
+        }
+    }
+
+    public void massiveFindWithYormFluentApi(int operations, int companyId) throws YormException {
+        for (int k = 1; k < operations; k++) {
+            yorm.from(Person.class).where(Person::companyId).equalTo(companyId).find();
         }
     }
 
@@ -132,7 +146,7 @@ class PerformanceTest {
         }
     }
 
-    public void massiveGetWithJdbc(int operations, Company company) throws YormException {
+    public void massiveFindWithJdbc(int operations, Company company) throws YormException {
         for (int k = 1; k < operations; k++) {
             TestDbHelper.get(ds, company.id());
         }

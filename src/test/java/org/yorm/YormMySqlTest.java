@@ -1,5 +1,12 @@
 package org.yorm;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,8 +20,6 @@ import org.yorm.exception.YormException;
 import org.yorm.records.*;
 import org.yorm.util.DbType;
 import org.yorm.utils.TestConnectionFactory;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class YormMySqlTest {
@@ -166,6 +171,8 @@ class YormMySqlTest {
         assertEquals("Sauron", person1.name());
         assertEquals("sauron@mordor.com", person1.email());
         assertEquals(2, person1.companyId());
+        List<Person> list2 = yorm.from(Person.class).where(Person::email).like(".com").find();
+        assertFalse(list2.isEmpty());
     }
 
     @Test
@@ -186,12 +193,18 @@ class YormMySqlTest {
         assertEquals("john.doe@um.com", personResultBefore.email());
         assertEquals(1, personResultBefore.companyId());
         Person person = new Person(1, "Draco", "draco.malfoy@hogwarts.com", localDateTime, 1);
-        yorm.update(person);
+        yorm.save(person);//Update because the id is 1
         Person personResult = yorm.find(Person.class, 1);
         assertEquals(1, personResult.id());
         assertEquals("Draco", personResult.name());
         assertEquals("draco.malfoy@hogwarts.com", personResult.email());
         assertEquals(1, personResult.companyId());
+        Person person2 = new Person(1, "Lucius", "lucius.malfoy@hogwarts.com", localDateTime, 1);
+        yorm.update(person2);
+        Person personResult2 = yorm.find(Person.class, 1);
+        assertEquals(1, personResult2.id());
+        assertEquals("Lucius", personResult2.name());
+        assertEquals("lucius.malfoy@hogwarts.com", personResult2.email());
     }
 
     @Test
@@ -211,4 +224,20 @@ class YormMySqlTest {
         Invoice invoice = new Invoice(1, 1);
         assertThrows(YormException.class, () -> yorm.insert(invoice));
     }
+
+    @Test
+    @Order(14)
+    void testFluentWhere() throws YormException {
+        List<Person> list = yorm.from(Person.class).where(Person::email).like(".com").find();
+        assertFalse(list.isEmpty());
+        List<Person> secondList = yorm.from(Person.class).where(Person::companyId).equalTo(100)
+            .or(Person::email).like("hogwarts")
+            .find();
+        assertEquals(2, secondList.size());
+        List<Person> thirdList = yorm.from(Person.class).where(Person::name).equalTo("Hermione")
+            .and(Person::lastLogin).greaterThan(LocalDateTime.of(2019, 01, 01, 0, 0, 0))
+            .find();
+        assertEquals(1, thirdList.size());
+    }
+
 }

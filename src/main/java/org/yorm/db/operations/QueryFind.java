@@ -2,7 +2,7 @@ package org.yorm.db.operations;
 
 import org.yorm.YormTable;
 import org.yorm.YormTuple;
-import org.yorm.db.FieldValue;
+import org.yorm.db.FilteringFieldValue;
 import org.yorm.exception.YormException;
 import org.yorm.util.RowRecordConverter;
 
@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class QueryFind {
+
     private static final RowRecordConverter rowRecordConverter = new RowRecordConverter();
 
     private QueryFind() {
@@ -66,7 +67,7 @@ public class QueryFind {
         List<YormTuple> tuples = yormTable.tuples();
         String query = yormTable.selectAllFromTable() + " WHERE " + fieldName + " = ?";
         try (Connection connection = ds.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(query.toString())) {
+            PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setLong(1, id);
             ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()) {
@@ -84,21 +85,20 @@ public class QueryFind {
         return resultList;
     }
 
-    public static <T extends Record> List<T> findFiltering(DataSource ds, YormTable yormTable, List<FieldValue> filteringList) throws YormException {
-        String op = " ? OR";
+    public static <T extends Record> List<T> findFiltering(DataSource ds, YormTable yormTable, List<FilteringFieldValue> filteringList) throws YormException {
         List<T> resultList = new ArrayList<>();
         List<YormTuple> tuples = yormTable.tuples();
         StringBuilder query = new StringBuilder(yormTable.selectAllFromTable());
         if (!filteringList.isEmpty()) {
             query.append(" WHERE ")
-                .append(String.join(" ", filteringList.stream().map(fv -> fv.fieldName() + " " + fv.whereOperator().getOperator() + op).toList()));
-            query.deleteCharAt(query.length() - 1);
-            query.deleteCharAt(query.length() - 1);
+                .append(String.join(" ",
+                    filteringList.stream().map(fv -> fv.whereOperator().getOperator() + " " + fv.fieldName() + " " + fv.comparisonOperator().getOperator() + " ? ").toList()));
         }
+        String completeQuery = cleanSql(query.toString());
         try (Connection connection = ds.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(query.toString())) {
+            PreparedStatement preparedStatement = connection.prepareStatement(completeQuery)) {
             int paramIndex = 1;
-            for (FieldValue fieldValue : filteringList) {
+            for (FilteringFieldValue fieldValue : filteringList) {
                 rowRecordConverter.recordToRow(paramIndex, preparedStatement, fieldValue.fieldName(), fieldValue.value(), fieldValue.dbType());
                 paramIndex++;
             }
@@ -116,12 +116,18 @@ public class QueryFind {
         return resultList;
     }
 
+    private static String cleanSql(String query) {
+        query = query.replace("  ", " ");
+        query = query.replace("WHERE OR", "WHERE");
+        query = query.replace("WHERE AND", "WHERE");
+        return query;
+    }
+
     private static void loopResults(List<YormTuple> tuples, ResultSet rs, Object[] values, int params) throws SQLException, YormException {
         for (YormTuple tuple : tuples) {
             params = rowRecordConverter.rowToRecord(rs, values, params, tuple.dbFieldName(), tuple.type());
         }
     }
-
 
 
 }
