@@ -17,11 +17,9 @@ Java Records usually are a perfect fit for basic CRUD operations, and here is wh
 - Your tables contain auto increment ids
 - You don't need complex INNER JOIN queries, just basic CRUD
 
-Although the Java industry offers very well maintained ORM solutions like Hibernate or Jooq, they tend not to work that well
-with Java Records. **Yorm** on the other side is specifically designed to leverage this Java capability.
+Although the Java industry offers very well maintained ORM solutions like [Hibernate] or [Jooq], they tend not to work that well with Java Records. **Yorm** on the other side is specifically designed to leverage this Java capability.
 
-Due to the immutable nature of Java Records, **Yorm** cannot be understood as a persistent ORM, not even as an ORM, as there aren't really
-any relationships.
+Due to the immutable nature of Java Records, **Yorm** cannot be understood as a persistent ORM, not even as an ORM, as there aren't really any relationships.
 ## Features
 
 - No need to generate classes
@@ -39,7 +37,8 @@ When a Java Record is operated with **Yorm**, a reflection inspection will came 
 *Yorm* has been designed to need very few dependencies:
 
 - [HikariCP] - Hikari, to deal with the database
-- [MySql] - So far, the only database officially supported
+- [MySql] - Database supported and tested
+- [PostgreSql] - Database supported and tested, courtesy of [PabloGrisafi]
 - [Junit 5] - For the unit tests
 - [TestContainers] - Also for the unit tests
 - [Slf4j] - Logging is usually useful
@@ -83,7 +82,7 @@ INSERT INTO person (name, email, company_id) VALUES ("John", "john.doe@um.com", 
 We might need to insert the object with its id, there is no problem:
 ```java
 Person person = new Person(2, "Mark", "mark.doe@um.com", 1);
-        int idPerson = yorm.insert(person);
+    int idPerson = yorm.insert(person);
 ```
 This operation will be automatically translated into
 ```sql
@@ -94,7 +93,7 @@ The update operation follows the same pattern. Please bear in mind that Records 
 create a new one, and the id will be used to detect that it's an update operation:
 ```java
 Person person = new Person(2, "Jacob", "jacob.doe@um.com", 1);
-        yorm.save(person);
+    yorm.save(person);
 ```
 Whose equivalent SQL would be:
 ```sql
@@ -104,28 +103,28 @@ Why is using company_id here? Well, it looks like a candidate to be a foreign ke
 ```sql
 CREATE TABLE company
 (
-   id            INT(10) AUTO_INCREMENT PRIMARY KEY NOT NULL,
-   name          VARCHAR(20) NOT NULL,
-   country_code  VARCHAR(2)  NOT NULL,
-   creation_date DATE        NOT NULL,
-   is_active     TINYINT     NOT NULL
+    id            INT(10) AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    name          VARCHAR(20) NOT NULL,
+    country_code  VARCHAR(2)  NOT NULL,
+    creation_date DATE        NOT NULL,
+    is_active     TINYINT     NOT NULL
 );
 
 ALTER TABLE `person`
-   ADD CONSTRAINT `person_id` FOREIGN KEY (`company_id`) REFERENCES `company` (`id`) ON DELETE CASCADE;
+    ADD CONSTRAINT `person_id` FOREIGN KEY (`company_id`) REFERENCES `company` (`id`) ON DELETE CASCADE;
 ```
 **Yorm** will detect that there is one Primary Key and a Multiple Key, and use them for the update. Nevertheless, **Yorm** also allows the update operation:
 ```java
 Person person = new Person(2, "Jacob", "jacob.doe@um.com", 1);
-yorm.update(person);
+    yorm.update(person);
 ```
 Insertion can even be massive:
 ```java
 Person person1 = new Person(2, "Hermione", "hermione.granger@hogwarts.com", 1);
-Person person2 = new Person(3, "Harry", "harry.potter@hogwarts.com", 1);
-Person person3 = new Person(4, "Sauron", "sauron@mordor.com", 2);
-List<Person> list = List.of(person1, person2, person3);
-yorm.insert(list);
+    Person person2 = new Person(3, "Harry", "harry.potter@hogwarts.com", 1);
+    Person person3 = new Person(4, "Sauron", "sauron@mordor.com", 2);
+    List<Person> list = List.of(person1, person2, person3);
+    yorm.insert(list);
 ```
 We've inserted and updated elements in the table. How can we retrieve them into Records? The first and easiest way would be retrieving all the elements. It's just one line:
 ```java
@@ -147,7 +146,7 @@ SELECT id, name, email, company_id FROM person WHERE id=1
 Or even retrieve elements with a foreign key:
 ```java
 Company company = new Company(1, null, null, null, false);
-List<Person> personList = yorm.find(Person.class, company);
+    List<Person> personList = yorm.find(Person.class, company);
 ```
 Pay attention how the Record company, with id 1, is used to retrieve a list of objects Person whose company_id is 1. **Yorm** will detect that Person has a foreign key with Company and use that to build the query:
 ```sql
@@ -156,13 +155,30 @@ SELECT id, name, email, company_id FROM person WHERE company_id=1
 Some kinds of filtering is also allowed:
 ```java
 Person personFilter1 = new Person(0, "harry", "john", 0);
-Person personFilter2 = new Person(0, null, null, 2);
-List<Person> list = List.of(personFilter1, personFilter2);
-List<Person> personList = yorm.find(list);
+    Person personFilter2 = new Person(0, null, null, 2);
+    List<Person> list = List.of(personFilter1, personFilter2);
+    List<Person> personList = yorm.find(list);
 ```
 Let's review this one a bit. **Yorm** deals with Records. Here we have defined two Person records, the first one with some information on *name* and *email*, and the second one with a *company_id*. **Yorm** will ignore all the nulls and 0s on fields that are ids, but use the rest of the information to build a SELECT query and retrieve a List of Person Records:
 ```sql
 SELECT id, name, email, company_id FROM person WHERE name like '%harry%' OR email like '%john%' OR company_id=2
+```
+Based on [Benjiql] idea, **Yorm** also has some sort of fluent API capabilities to find records. The previous example could also be written like:
+```java
+List<Person> personList = yorm.from(Person.class).where(Person::name).like("harry")
+    .or(Person::email).like("john")
+    .or(Person::companyId).equalTo(2)
+    .find();
+```
+**Yorm** can chain operands to build SQL alike sentences just with code:
+```java
+List<Person> thirdList = yorm.from(Person.class).where(Person::name).equalTo("John")
+    .and(Person::lastLogin).greaterThan(LocalDateTime.of(2019, 01, 01, 0, 0, 0))
+    .find();
+```
+Which translated to SQL would be:
+```sql
+SELECT id, name, email, last_login, company_id FROM person WHERE name = 'John' AND last_login >= '2019-01-01 00:00' 
 ```
 As a final note, Yorm works just by creating an instance of Yorm with a *javax.sql.DataSource*:
 ```java
@@ -201,8 +217,13 @@ Apache 2.0
 [//]: # (These are reference links used in the body of this note and get stripped out when the markdown processor does its job. There is no need to format nicely because it shouldn't be seen. Thanks SO - http://stackoverflow.com/questions/4823468/store-comments-in-markdown-syntax)
 
 [HikariCP]: <https://github.com/brettwooldridge/HikariCP>
-[Mysql]: <https://https://www.mysql.com>
+[Mysql]: <https://www.mysql.com>
+[PostgreSql]: <https://www.postgresql.org/>
 [Junit 5]: <https://junit.org/junit5/>
 [TestContainers]: <https://www.testcontainers.org/>
 [Slf4j]: <https://www.slf4j.org/manual.html/>
+[PabloGrisafi]: <https://github.com/pablogrisafi1975>
+[Hibernate]: <https://hibernate.org/>
+[Jooq]: <http://www.jooq.org/>
+[Benjiql]: <https://github.com/benjiman/benjiql>
    
