@@ -24,10 +24,10 @@ public class Yorm {
         this.queryBuilder = new QueryBuilder(ds);
     }
 
-    public long save(Record recordObj) throws YormException {
+    public <T extends Record> long save(T recordObj) throws YormException {
         String objectName = getRecordName(recordObj);
         YormTable yormTable = getTable(objectName, recordObj.getClass());
-        long result = 0;
+        long result;
         try {
             result = queryBuilder.save(ds, recordObj, yormTable);
         } catch (InvocationTargetException | IllegalAccessException e) {
@@ -36,7 +36,7 @@ public class Yorm {
         return result;
     }
 
-    public long insert(Record recordObj) throws YormException {
+    public <T extends Record> long insert(T recordObj) throws YormException {
         String objectName = getRecordName(recordObj);
         YormTable yormTable = getTable(objectName, recordObj.getClass());
         return queryBuilder.insert(ds, recordObj, yormTable);
@@ -46,14 +46,14 @@ public class Yorm {
         if (recordListObj.isEmpty()) {
             return;
         }
-        Record recordObj = recordListObj.get(0);
+        T recordObj = recordListObj.get(0);
         String objectName = getRecordName(recordObj);
         YormTable yormTable = getTable(objectName, recordObj.getClass());
         queryBuilder.bulkInsert(ds, recordListObj, yormTable);
 
     }
 
-    public void update(Record recordObj) throws YormException {
+    public <T extends Record> void update(T recordObj) throws YormException {
         String objectName = getRecordName(recordObj);
         YormTable yormTable = getTable(objectName, recordObj.getClass());
         queryBuilder.update(ds, recordObj, yormTable);
@@ -106,6 +106,7 @@ public class Yorm {
         }
         return result;
     }
+
 
     private <T extends Record> String getClassName(Class<T> clazz) {
         return clazz.getSimpleName().toLowerCase(Locale.ROOT);

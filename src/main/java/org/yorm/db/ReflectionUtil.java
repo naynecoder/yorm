@@ -19,14 +19,14 @@ With Java Records 17 this nasty trick of matching values has to be applied,
 as Proxy instances neither Bytebuddy can be used, since records are final
  */
 
-public class ReflectionUtil<T extends Record> {
+public class ReflectionUtil {
 
-    private Constructor<T> constructor;
+    private Constructor<Record> constructor;
     private List<YormTuple> yormTupleList;
-    private T sampleObject;
+    private Record sampleObject;
     private List<MapTuple> mapTuplelist = new ArrayList<>();
 
-    public ReflectionUtil(Constructor<T> constructor, List<YormTuple> yormTupleList) throws YormException {
+    public ReflectionUtil(Constructor<Record> constructor, List<YormTuple> yormTupleList) throws YormException {
         this.constructor = constructor;
         this.yormTupleList = yormTupleList;
         try {
@@ -41,8 +41,8 @@ public class ReflectionUtil<T extends Record> {
         this.sampleObject = this.constructor.newInstance(this.mapTuplelist.stream().map(MapTuple::object).toList().toArray(new Object[0]));
     }
 
-    public <U> String getFunctionName(Function<T, U> getter) throws YormException {
-        Object obj = getter.apply(sampleObject);
+    public <T extends Record, U> String getFunctionName(Function<T, U> getter) throws YormException {
+        Object obj = getter.apply((T) sampleObject);
         YormTuple yormTuple = mapTuplelist.stream().filter(mp -> mp.object().equals(obj)).map(MapTuple::tuple).findFirst()
             .orElseThrow(() -> new YormException("Couldn't find a database field mapped to that property"));
         return yormTuple.dbFieldName();

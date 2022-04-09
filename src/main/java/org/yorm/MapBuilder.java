@@ -68,9 +68,9 @@ public class MapBuilder {
         return tuples;
     }
 
-    private Boolean yesNoToBoolean(String str) throws YormException {
+    private boolean yesNoToBoolean(String str) throws YormException {
         if (str == null || str.isBlank()) {
-            return null;
+            return false;
         }
         if ("YES".equalsIgnoreCase(str)) {
             return true;

@@ -67,10 +67,8 @@ public class QueryFind {
         List<YormTuple> tuples = yormTable.tuples();
         String query = yormTable.selectAllFromTable() + " WHERE " + fieldName + " = ?";
         try (Connection connection = ds.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(query.toString())) {
-            preparedStatement.setLong(1, id);
             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setInt(1, id);
+            preparedStatement.setLong(1, id);
             ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()) {
                 Object[] values = new Object[tuples.size()];
