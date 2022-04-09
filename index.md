@@ -1,9 +1,9 @@
 # Yorm
 ## _Yet another ORM_
 
-![Build Status](https://naynecoder.github.io/yorm/passing.svg)
-[![Version](https://img.shields.io/maven-central/v/org.yorm/yorm-bom?logo=apache-maven&style=flat)](https://search.maven.org/artifact/org.yorm/yorm-bom)
-![Supported JVM Versions](https://img.shields.io/badge/JVM-17-success.svg?style=flat&logo=Java)
+![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)
+[![Maven metadata URL](https://img.shields.io/maven-metadata/v?color=blue&logo=apache-maven&metadataUrl=https%3A%2F%2Frepo1.maven.org%2Fmaven2%2Forg%2Fyorm%2Fyorm%2Fmaven-metadata.xml)](https://mvnrepository.com/artifact/org.yorm/yorm) 
+![Supported JVM Versions](https://img.shields.io/badge/JVM-17-success.svg?style=flat&logo=Java) 
 [![License](https://img.shields.io/github/license/naynecoder/yorm?style=flat&logo=apache&color=success)](https://www.apache.org/licenses/LICENSE-2.0)
 
 Yorm is a basic ORM-alike framework designed to work with Java Records, without class generation, neither annotations.
