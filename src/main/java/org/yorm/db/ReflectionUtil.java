@@ -57,13 +57,13 @@ public class ReflectionUtil {
         LocalDateTime sampleTime = LocalDateTime.of(sampleDate, LocalTime.MIDNIGHT);
         for (YormTuple yormTuple : yormTupleList) {
             switch (yormTuple.type()) {
-                case TINYINT -> {
+                case TINYINT, BIT -> {
                     list.add(new MapTuple(yormTuple, sampleBoolean));
                     sampleBoolean = !sampleBoolean;
                 }
                 case VARCHAR -> list.add(new MapTuple(yormTuple, String.valueOf(sampleNumber++)));
                 case CHAR -> list.add(new MapTuple(yormTuple, (Character.valueOf((char) charNumber++))));
-                case SMALLINT, INTEGER, BIT -> list.add(new MapTuple(yormTuple, (sampleNumber++)));
+                case SMALLINT, INTEGER -> list.add(new MapTuple(yormTuple, (sampleNumber++)));
                 case BIGINT -> list.add(new MapTuple(yormTuple, (BigInteger.valueOf(sampleNumber++))));
                 case REAL, FLOAT -> list.add(new MapTuple(yormTuple, (Float.valueOf(sampleNumber++))));
                 case DOUBLE -> list.add(new MapTuple(yormTuple, (Double.valueOf(sampleNumber++))));
