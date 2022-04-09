@@ -41,14 +41,12 @@ class YormMySqlTest {
         assertNotNull(map);
         List<YormTuple> tuples = map.tuples();
         assertEquals(5, tuples.size());
-
         YormTuple tuple0 = tuples.get(0);
         assertEquals("id", tuple0.dbFieldName());
         assertEquals(DbType.INTEGER, tuple0.type());
         assertEquals("id", tuple0.method().getName());
         assertEquals("id", tuple0.objectName());
         assertTrue(tuple0.isPrimaryKey());
-
         YormTuple tuple3 = tuples.get(3);
         assertEquals("last_login", tuple3.dbFieldName());
         assertEquals(DbType.TIMESTAMP, tuple3.type());
@@ -56,14 +54,14 @@ class YormMySqlTest {
         assertEquals("lastLogin", tuple3.objectName());
         assertEquals("last_login", tuple3.dbFieldName());
         assertFalse(tuple3.isPrimaryKey());
-
         YormTuple tuple4 = tuples.get(4);
         assertEquals("company_id", tuple4.dbFieldName());
         assertEquals(DbType.INTEGER, tuple0.type());
         assertEquals("companyId", tuple4.method().getName());
         assertEquals("companyId", tuple4.objectName());
         assertEquals("company_id", tuple4.dbFieldName());
-        assertFalse(tuple4.isPrimaryKey());    }
+        assertFalse(tuple4.isPrimaryKey());
+    }
 
     @Test
     @Order(2)
@@ -238,6 +236,8 @@ class YormMySqlTest {
             .and(Person::lastLogin).greaterThan(LocalDateTime.of(2019, 01, 01, 0, 0, 0))
             .find();
         assertEquals(1, thirdList.size());
+        List<Company> companyList = yorm.from(Company.class).where(Company::isActive).notEqualTo(false).find();
+        assertEquals(1, companyList.size());
     }
 
 }

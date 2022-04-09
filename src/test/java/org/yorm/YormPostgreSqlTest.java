@@ -231,5 +231,7 @@ class YormPostgreSqlTest {
             .and(Person::lastLogin).greaterThan(LocalDateTime.of(2019, 01, 01, 0, 0, 0))
             .find();
         assertEquals(1, thirdList.size());
+        List<Company> companyList = yorm.from(Company.class).where(Company::isActive).notEqualTo(false).find();
+        assertEquals(1, companyList.size());
     }
 }
