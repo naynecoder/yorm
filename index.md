@@ -1,7 +1,7 @@
 # Yorm
 ## _Yet another ORM_
 
-![Build Status](https://github.com/naynecoder/yorm/passing.svg?branch=gm-pages)
+![Build Status](https://naynecoder.github.io/yorm/passing.svg)
 [![Version](https://img.shields.io/maven-central/v/org.yorm/yorm-bom?logo=apache-maven&style=flat)](https://search.maven.org/artifact/org.yorm/yorm-bom)
 ![Supported JVM Versions](https://img.shields.io/badge/JVM-17-success.svg?style=flat&logo=Java)
 [![License](https://img.shields.io/github/license/naynecoder/yorm?style=flat&logo=apache&color=success)](https://www.apache.org/licenses/LICENSE-2.0)
