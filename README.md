@@ -197,7 +197,7 @@ You can easily add Yorm to your project with
 <dependency>
   <groupId>org.yorm</groupId>
   <artifactId>yorm</artifactId>
-  <version>0.0.1</version>
+  <version>0.0.2</version>
 </dependency>
 ```
 
