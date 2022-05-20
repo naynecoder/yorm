@@ -48,6 +48,9 @@ When a Java Record is operated with **Yorm**, a reflection inspection will came 
 
 And that's it, the **Yorm** lies heavily on Java 17 Records and Reflections.
 
+**Yorm** has been tested with Snowflake, and it works as long as the table
+has no primary keys, and the Jvm is run with the option *--add-opens java.base/java.nio=ALL-UNNAMED*
+
 ## How to use it with examples
 
 Imagine you have a database with a table called Person, defined like:
@@ -197,7 +200,7 @@ You can easily add Yorm to your project with
 <dependency>
   <groupId>org.yorm</groupId>
   <artifactId>yorm</artifactId>
-  <version>0.0.2</version>
+  <version>0.0.3</version>
 </dependency>
 ```
 
