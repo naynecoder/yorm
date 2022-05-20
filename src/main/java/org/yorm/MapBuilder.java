@@ -32,15 +32,18 @@ public class MapBuilder {
     }
 
     public <T extends Record> YormTable buildMap(Class<T> recordClass) throws YormException {
-        String dbTable = recordClass.getSimpleName().toLowerCase(Locale.ROOT);
+        String recordClassName = recordClass.getSimpleName().toLowerCase(Locale.ROOT);
+        String dbTable = recordClassName;
         Field[] objectFields = recordClass.getDeclaredFields();
         List<Method> methods = Arrays.asList(recordClass.getMethods());
         List<YormTuple> tuples;
         try (Connection connection = ds.getConnection()) {
-            List<Description> descriptionList = getDescription(connection, dbTable);
+            DatabaseMetaData metaData = connection.getMetaData();
+            dbTable = getMatchingTableName(metaData, recordClassName);
+            List<Description> descriptionList = getDescription(metaData, dbTable);
             tuples = populateMap(objectFields, descriptionList, methods);
         } catch (SQLException | YormException e) {
-            throw new YormException("Error mapping record " + dbTable, e);
+            throw new YormException("Error mapping record " + recordClassName, e);
         }
         if (logger.isDebugEnabled()) {
             logger.debug("Record:{} mapped to table:{}", recordClass.getName(), dbTable);
@@ -53,11 +56,21 @@ public class MapBuilder {
         return new YormTable(dbTable, tuples, constructor);
     }
 
+    private String getMatchingTableName(DatabaseMetaData metaData, String recordClassName) throws SQLException {
+        ResultSet resultSet = metaData.getTables(null, null, null, new String[]{"TABLE"});
+        List<String> tables = new ArrayList<>();
+        while (resultSet.next()) {
+            tables.add(resultSet.getString("TABLE_NAME"));
+        }
+        return findClosest(tables, recordClassName);
+    }
+
     private List<YormTuple> populateMap(Field[] objectFields, List<Description> descriptionList, List<Method> methods) throws YormException {
         List<YormTuple> tuples = new ArrayList<>();
         Set<String> alreadyUsedObjectFields = new HashSet<>();
         for (Description description : descriptionList) {
-            String objectField = findClosest(objectFields, description.columnName());
+            List<String> objectFieldNames = Arrays.asList(objectFields).stream().map(Field::getName).toList();
+            String objectField = findClosest(objectFieldNames, description.columnName());
             if (alreadyUsedObjectFields.contains(objectField)) {
                 throw new YormException("Mismatch mapping methods to database with field " + description.columnName());
             }
@@ -88,9 +101,8 @@ public class MapBuilder {
 
     }
 
-    private List<Description> getDescription(Connection connection, String table) throws SQLException {
+    private List<Description> getDescription(DatabaseMetaData metaData, String table) throws SQLException {
         List<Description> descriptionList = new ArrayList<>();
-        DatabaseMetaData metaData = connection.getMetaData();
         List<String> primaryKeysColumns = new ArrayList<>();
         try (ResultSet rsColumn = metaData.getPrimaryKeys(null, null, table)) {
             while (rsColumn.next()) {
@@ -118,13 +130,13 @@ public class MapBuilder {
 
     }
 
-    private String findClosest(Field[] fields, String fieldName) {
+    private String findClosest(List<String> fields, String fieldName) {
         String closest = null;
         int distance = 100;
-        for (Field field : fields) {
-            int tempDist = Levenshtein.calculate(cleanName(field.getName()), cleanName(fieldName));
+        for (String field : fields) {
+            int tempDist = Levenshtein.calculate(cleanName(field), cleanName(fieldName));
             if (tempDist < distance) {
-                closest = field.getName();
+                closest = field;
                 distance = tempDist;
             }
         }

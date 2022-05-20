@@ -1,15 +1,16 @@
 package org.yorm.util;
 
+import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Time;
 import java.sql.Timestamp;
-import org.yorm.exception.YormException;
-
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import org.yorm.exception.YormException;
 
 public class RowRecordConverter {
 
@@ -17,7 +18,7 @@ public class RowRecordConverter {
         switch (type) {
             //MySql does not have a truly boolean type, bool/boolean are a synonym of tinyint(1)
             //Postgresql maps booleans to bits
-            case TINYINT, BIT -> preparedStatement.setBoolean(paramIndex, (boolean) value);
+            case TINYINT, BIT, BOOLEAN -> preparedStatement.setBoolean(paramIndex, (boolean) value);
             case SMALLINT, INTEGER -> {
                 if (value instanceof Integer) {
                     preparedStatement.setInt(paramIndex, (int) value);
@@ -33,6 +34,7 @@ public class RowRecordConverter {
             case FLOAT, REAL -> preparedStatement.setFloat(paramIndex, (float) value);
             case DECIMAL -> preparedStatement.setBigDecimal(paramIndex, (BigDecimal) value);
             case DATE -> preparedStatement.setDate(paramIndex, Date.valueOf((LocalDate) value));
+            case TIME -> preparedStatement.setTime(paramIndex, Time.valueOf((LocalTime) value));
             case TIMESTAMP -> preparedStatement.setTimestamp(paramIndex, Timestamp.valueOf((LocalDateTime) value));
             default -> throw new YormException("Couldn't find type for " + dbColumnName);
         }
@@ -40,7 +42,7 @@ public class RowRecordConverter {
 
     public int rowToRecord(ResultSet rs, Object[] values, int params, String dbColumnName, DbType type) throws SQLException, YormException {
         switch (type) {
-            case TINYINT, BIT -> {
+            case TINYINT, BIT, BOOLEAN -> {
                 //MySql does not have a truly boolean type, bool/boolean are a synonym of tinyint(1)
                 boolean tiny = rs.getBoolean(dbColumnName);
                 values[params++] = tiny;
@@ -72,6 +74,10 @@ public class RowRecordConverter {
             case DATE -> {
                 Date date = rs.getDate(dbColumnName);
                 values[params++] = date.toLocalDate();
+            }
+            case TIME -> {
+                Time time = rs.getTime(dbColumnName);
+                values[params++] = time.toLocalTime();
             }
             case TIMESTAMP -> {
                 Timestamp ts = rs.getTimestamp(dbColumnName);

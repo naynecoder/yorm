@@ -1,8 +1,10 @@
 package org.yorm;
 
+import java.time.LocalTime;
 import org.junit.jupiter.api.*;
 import org.yorm.exception.YormException;
 import org.yorm.records.Company;
+import org.yorm.records.HistoryAnnotation;
 import org.yorm.records.Invoice;
 import org.yorm.records.Person;
 import org.yorm.util.DbType;
@@ -233,5 +235,17 @@ class YormPostgreSqlTest {
         assertEquals(1, thirdList.size());
         List<Company> companyList = yorm.from(Company.class).where(Company::isActive).notEqualTo(false).find();
         assertEquals(1, companyList.size());
+    }
+
+    @Test
+    @Order(15)
+    void testTimeType() throws YormException {
+        HistoryAnnotation refAnnotation = new HistoryAnnotation("Test subject", 12.4f, LocalTime.NOON);
+        List annotationHistories = List.of(refAnnotation);
+        yorm.insert(annotationHistories);
+        List<HistoryAnnotation> retrievedList = yorm.find(HistoryAnnotation.class);
+        assertEquals(1, retrievedList.size());
+        HistoryAnnotation retrievedAnnotation = retrievedList.get(0);
+        assertEquals(retrievedAnnotation, refAnnotation);
     }
 }

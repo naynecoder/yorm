@@ -39,7 +39,8 @@ public class QuerySave {
         query.deleteCharAt(query.length() - 1);
         query.append(";");
         try (Connection connection = ds.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(query.toString(), Statement.RETURN_GENERATED_KEYS)) {
+            PreparedStatement preparedStatement = connection.prepareStatement(query.toString(),
+                yormTable.hasPrimaryKey() ? Statement.RETURN_GENERATED_KEYS : Statement.NO_GENERATED_KEYS)) {
             int paramIndex = 1;
             for (Record obj : objList) {
                 paramIndex = populatePreparedStatement(tuples, paramIndex, preparedStatement, obj);
@@ -63,7 +64,8 @@ public class QuerySave {
         query.deleteCharAt(query.length() - 1);
         query.append(")");
         try (Connection connection = ds.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(query.toString(), Statement.RETURN_GENERATED_KEYS)) {
+            PreparedStatement preparedStatement = connection.prepareStatement(query.toString(),
+                yormTable.hasPrimaryKey() ? Statement.RETURN_GENERATED_KEYS : Statement.NO_GENERATED_KEYS)) {
             int paramIndex = 1;
             populatePreparedStatement(tuples, paramIndex, preparedStatement, obj);
             preparedStatement.executeUpdate();
@@ -91,7 +93,8 @@ public class QuerySave {
         query.deleteCharAt(query.length() - 1);
         query.append(")");
         try (Connection connection = ds.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(query.toString(), Statement.RETURN_GENERATED_KEYS)) {
+            PreparedStatement preparedStatement = connection.prepareStatement(query.toString(),
+                yormTable.hasPrimaryKey() ? Statement.RETURN_GENERATED_KEYS : Statement.NO_GENERATED_KEYS)) {
             int paramIndex = 1;
             populatePreparedStatement(tuples, paramIndex, preparedStatement, obj);
             preparedStatement.executeUpdate();
@@ -141,7 +144,6 @@ public class QuerySave {
         }
         return paramIndex;
     }
-
 
 
 }

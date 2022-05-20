@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.BeforeAll;
@@ -17,7 +18,10 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.yorm.exception.YormException;
-import org.yorm.records.*;
+import org.yorm.records.Company;
+import org.yorm.records.HistoryAnnotation;
+import org.yorm.records.Invoice;
+import org.yorm.records.Person;
 import org.yorm.util.DbType;
 import org.yorm.utils.TestConnectionFactory;
 
@@ -238,6 +242,18 @@ class YormMySqlTest {
         assertEquals(1, thirdList.size());
         List<Company> companyList = yorm.from(Company.class).where(Company::isActive).notEqualTo(false).find();
         assertEquals(1, companyList.size());
+    }
+
+    @Test
+    @Order(15)
+    void testTimeType() throws YormException {
+        HistoryAnnotation refAnnotation = new HistoryAnnotation("Test subject", 12.4f, LocalTime.NOON);
+        List annotationHistories = List.of(refAnnotation);
+        yorm.insert(annotationHistories);
+        List<HistoryAnnotation> retrievedList = yorm.find(HistoryAnnotation.class);
+        assertEquals(1, retrievedList.size());
+        HistoryAnnotation retrievedAnnotation = retrievedList.get(0);
+        assertEquals(retrievedAnnotation, refAnnotation);
     }
 
 }

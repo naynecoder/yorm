@@ -45,6 +45,7 @@
     <version.maven-surefire>3.0.0-M5</version.maven-surefire>
     <version.log4j>2.17.2</version.log4j>
     <version.postgresql>42.3.3</version.postgresql>
+    <version.snowflake>3.13.18</version.snowflake>
   </properties>
   <dependencies>
     <dependency>
@@ -75,6 +76,11 @@
       <artifactId>log4j-slf4j-impl</artifactId>
       <version>2.17.2</version>
       <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>net.snowflake</groupId>
+      <artifactId>snowflake-jdbc</artifactId>
+      <version>${version.snowflake}</version>
     </dependency>
     <!-- Test Dependencies -->
     <dependency>

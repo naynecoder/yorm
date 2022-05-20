@@ -1,15 +1,15 @@
 package org.yorm.util;
 
-import org.yorm.exception.YormException;
-
 import java.sql.Types;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import org.yorm.exception.YormException;
 
 public enum DbType {
     //TODO: include all Types.whatever
     TINYINT(Types.TINYINT),
+    BOOLEAN(Types.BOOLEAN),
     SMALLINT(Types.SMALLINT),
     INTEGER(Types.INTEGER),
     BIGINT(Types.BIGINT),
@@ -19,6 +19,7 @@ public enum DbType {
     DECIMAL(Types.DECIMAL),
     BIT(Types.BIT),
     DATE(Types.DATE),
+    TIME(Types.TIME),
     TIMESTAMP(Types.TIMESTAMP),
     CHAR(Types.CHAR),
     VARCHAR(Types.VARCHAR);
