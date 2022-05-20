@@ -1,6 +1,11 @@
 
 # Change Log
 
+## 2022-05-22 version 0.3.0
+
+- Checked support for Snowflake, it works as long as the table has no primary keys
+- Fixed bug on Time type
+- Fixed bug on tables with slightly different names than classes
 
 ## 2022-04-10 version 0.2.0
 

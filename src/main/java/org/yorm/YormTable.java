@@ -12,7 +12,8 @@ public record YormTable(
     Constructor<Record> constructor,
     String concatenatedFieldNames,
     String selectAllFromTable,
-    ReflectionUtil reflectionUtil
+    ReflectionUtil reflectionUtil,
+    boolean hasPrimaryKey
 ) {
 
     public YormTable(String dbTable, List<YormTuple> tuples, Constructor<Record> constructor) throws YormException {
@@ -22,7 +23,8 @@ public record YormTable(
             constructor,
             tuples.stream().map(YormTuple::dbFieldName).collect(Collectors.joining(", ")),
             tuples.stream().map(YormTuple::dbFieldName).collect(Collectors.joining(", ", "SELECT ", " FROM " + dbTable)),
-            new ReflectionUtil(constructor, tuples)
+            new ReflectionUtil(constructor, tuples),
+            tuples.stream().anyMatch(YormTuple::isPrimaryKey)
         );
     }
 

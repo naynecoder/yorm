@@ -55,22 +55,27 @@ public class ReflectionUtil {
         LocalDate sampleDate = LocalDate.now();
         boolean sampleBoolean = false;
         LocalDateTime sampleTime = LocalDateTime.of(sampleDate, LocalTime.MIDNIGHT);
+        LocalTime secondSampleTime = LocalTime.MIDNIGHT;
         for (YormTuple yormTuple : yormTupleList) {
             switch (yormTuple.type()) {
-                case TINYINT, BIT -> {
+                case TINYINT, BIT, BOOLEAN -> {
                     list.add(new MapTuple(yormTuple, sampleBoolean));
                     sampleBoolean = !sampleBoolean;
                 }
                 case VARCHAR -> list.add(new MapTuple(yormTuple, String.valueOf(sampleNumber++)));
                 case CHAR -> list.add(new MapTuple(yormTuple, (Character.valueOf((char) charNumber++))));
                 case SMALLINT, INTEGER -> list.add(new MapTuple(yormTuple, (sampleNumber++)));
-                case BIGINT -> list.add(new MapTuple(yormTuple, (BigInteger.valueOf(sampleNumber++))));
+                case BIGINT -> list.add(new MapTuple(yormTuple, (Long.valueOf(sampleNumber++))));
                 case REAL, FLOAT -> list.add(new MapTuple(yormTuple, (Float.valueOf(sampleNumber++))));
                 case DOUBLE -> list.add(new MapTuple(yormTuple, (Double.valueOf(sampleNumber++))));
                 case DECIMAL -> list.add(new MapTuple(yormTuple, (BigDecimal.valueOf(sampleNumber++))));
                 case DATE -> {
                     list.add(new MapTuple(yormTuple, (sampleDate)));
                     sampleDate = sampleDate.plusDays(1);
+                }
+                case TIME -> {
+                    list.add(new MapTuple(yormTuple, secondSampleTime));
+                    secondSampleTime = secondSampleTime.minusSeconds(30);
                 }
                 case TIMESTAMP -> {
                     list.add(new MapTuple(yormTuple, (sampleTime)));

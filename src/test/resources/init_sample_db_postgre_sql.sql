@@ -48,4 +48,10 @@ CREATE TABLE invoice
 ALTER TABLE "invoice"
     ADD CONSTRAINT "invoice_id" FOREIGN KEY ("company_id") REFERENCES "company" ("id") ON DELETE CASCADE;
 
-
+DROP TABLE IF EXISTS history_annotation;
+CREATE TABLE history_annotation
+(
+    subject         VARCHAR(20)     NOT NULL,
+    amount          REAL DEFAULT 0 NULL,
+    annotation_time TIME            NULL
+);
