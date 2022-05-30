@@ -55,3 +55,9 @@ CREATE TABLE history_annotation
     amount          REAL DEFAULT 0 NULL,
     annotation_time TIME            NULL
 );
+
+DROP VIEW IF EXISTS person_company;
+CREATE VIEW person_company AS
+SELECT p.name, p.email, c.debt, c.is_active
+FROM person p
+         INNER JOIN company c ON p.company_id = c.id;

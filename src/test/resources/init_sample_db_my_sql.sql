@@ -1,42 +1,42 @@
 SET
-    SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET
-    AUTOCOMMIT = 0;
+AUTOCOMMIT = 0;
 START TRANSACTION;
 SET
-    time_zone = "+00:00";
+time_zone = "+00:00";
 
 --
 -- Database: `yorm`
 --
 
 DROP
-    DATABASE IF EXISTS yorm;
+DATABASE IF EXISTS yorm;
 CREATE
-    DATABASE yorm;
+DATABASE yorm;
 
 USE
-    yorm;
+yorm;
 
 DROP TABLE IF EXISTS person;
 CREATE TABLE person
 (
     id         INT(10) AUTO_INCREMENT PRIMARY KEY NOT NULL,
-    name       VARCHAR(20)                        NOT NULL,
-    email      VARCHAR(55)                        NOT NULL,
-    last_login DATETIME                           NOT NULL,
-    company_id int(10)                            NOT NULL
+    name       VARCHAR(20) NOT NULL,
+    email      VARCHAR(55) NOT NULL,
+    last_login DATETIME    NOT NULL,
+    company_id int(10) NOT NULL
 );
 
 DROP TABLE IF EXISTS company;
 CREATE TABLE company
 (
     id            INT(10) AUTO_INCREMENT PRIMARY KEY NOT NULL,
-    name          VARCHAR(20)                        NOT NULL,
-    country_code  VARCHAR(2)                         NOT NULL,
-    creation_date DATE                               NOT NULL,
-    debt          FLOAT DEFAULT 0                    NULL,
-    is_active     TINYINT                            NOT NULL
+    name          VARCHAR(20) NOT NULL,
+    country_code  VARCHAR(2)  NOT NULL,
+    creation_date DATE        NOT NULL,
+    debt          FLOAT DEFAULT 0 NULL,
+    is_active     TINYINT     NOT NULL
 );
 
 ALTER TABLE `person`
@@ -46,9 +46,9 @@ DROP TABLE IF EXISTS invoice;
 CREATE TABLE invoice
 (
     id         INT(10) AUTO_INCREMENT PRIMARY KEY NOT NULL,
-    subject    VARCHAR(20)                        NOT NULL,
-    amount     FLOAT DEFAULT 0                    NULL,
-    company_id int(10)                            NOT NULL
+    subject    VARCHAR(20) NOT NULL,
+    amount     FLOAT DEFAULT 0 NULL,
+    company_id int(10) NOT NULL
 );
 
 ALTER TABLE `invoice`
@@ -57,10 +57,13 @@ ALTER TABLE `invoice`
 DROP TABLE IF EXISTS history_annotation;
 CREATE TABLE history_annotation
 (
-    subject         VARCHAR(20)     NOT NULL,
+    subject         VARCHAR(20) NOT NULL,
     amount          FLOAT DEFAULT 0 NULL,
-    annotation_time TIME            NULL
+    annotation_time TIME NULL
 );
 
-
-
+DROP VIEW IF EXISTS person_company;
+CREATE VIEW person_company AS
+SELECT p.name, p.email, c.debt, c.is_active
+FROM person p
+         INNER JOIN company c ON p.company_id = c.id;
