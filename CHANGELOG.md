@@ -1,7 +1,7 @@
 
 # Change Log
 
-## 2022-05-22 version 0.4.0
+## 2022-05-31 version 0.4.0
 
 - Added support for views
 - Allow different order in object fields and table fields
