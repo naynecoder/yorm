@@ -3,7 +3,6 @@ package org.yorm.db;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -51,7 +50,6 @@ public class ReflectionUtil {
     private List<MapTuple> buildSampleObject() {
         List<MapTuple> list = new ArrayList<>();
         int sampleNumber = 1;
-        int charNumber = 0;
         LocalDate sampleDate = LocalDate.now();
         boolean sampleBoolean = false;
         LocalDateTime sampleTime = LocalDateTime.of(sampleDate, LocalTime.MIDNIGHT);
@@ -62,8 +60,7 @@ public class ReflectionUtil {
                     list.add(new MapTuple(yormTuple, sampleBoolean));
                     sampleBoolean = !sampleBoolean;
                 }
-                case VARCHAR -> list.add(new MapTuple(yormTuple, String.valueOf(sampleNumber++)));
-                case CHAR -> list.add(new MapTuple(yormTuple, (Character.valueOf((char) charNumber++))));
+                case VARCHAR, CHAR -> list.add(new MapTuple(yormTuple, String.valueOf(sampleNumber++)));
                 case SMALLINT, INTEGER -> list.add(new MapTuple(yormTuple, (sampleNumber++)));
                 case BIGINT -> list.add(new MapTuple(yormTuple, (Long.valueOf(sampleNumber++))));
                 case REAL, FLOAT -> list.add(new MapTuple(yormTuple, (Float.valueOf(sampleNumber++))));

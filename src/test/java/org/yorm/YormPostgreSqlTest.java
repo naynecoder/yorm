@@ -7,6 +7,7 @@ import org.yorm.records.Company;
 import org.yorm.records.HistoryAnnotation;
 import org.yorm.records.Invoice;
 import org.yorm.records.Person;
+import org.yorm.records.PersonCompany;
 import org.yorm.util.DbType;
 import org.yorm.utils.TestConnectionFactory;
 
@@ -42,14 +43,14 @@ class YormPostgreSqlTest {
         assertEquals("id", tuple0.dbFieldName());
         assertEquals(DbType.INTEGER, tuple0.type());
         assertEquals("id", tuple0.method().getName());
-        assertEquals("id", tuple0.objectName());
+        assertEquals("id", tuple0.objectFieldName());
         assertTrue(tuple0.isPrimaryKey());
 
         YormTuple tuple3 = tuples.get(3);
         assertEquals("last_login", tuple3.dbFieldName());
         assertEquals(DbType.TIMESTAMP, tuple3.type());
         assertEquals("lastLogin", tuple3.method().getName());
-        assertEquals("lastLogin", tuple3.objectName());
+        assertEquals("lastLogin", tuple3.objectFieldName());
         assertEquals("last_login", tuple3.dbFieldName());
         assertFalse(tuple3.isPrimaryKey());
 
@@ -57,7 +58,7 @@ class YormPostgreSqlTest {
         assertEquals("company_id", tuple4.dbFieldName());
         assertEquals(DbType.INTEGER, tuple0.type());
         assertEquals("companyId", tuple4.method().getName());
-        assertEquals("companyId", tuple4.objectName());
+        assertEquals("companyId", tuple4.objectFieldName());
         assertEquals("company_id", tuple4.dbFieldName());
         assertFalse(tuple4.isPrimaryKey());
     }
@@ -247,5 +248,13 @@ class YormPostgreSqlTest {
         assertEquals(1, retrievedList.size());
         HistoryAnnotation retrievedAnnotation = retrievedList.get(0);
         assertEquals(retrievedAnnotation, refAnnotation);
+    }
+
+    @Test
+    @Order(16)
+    void testView() throws YormException {
+        List<PersonCompany> list = yorm.from(PersonCompany.class).where(PersonCompany::isActive).equalTo(true).find();
+        assertNotEquals(0, list.size());
+        assertTrue(list.stream().filter(pc->!pc.isActive()).findAny().isEmpty());
     }
 }

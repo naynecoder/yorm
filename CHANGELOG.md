@@ -1,6 +1,11 @@
 
 # Change Log
 
+## 2022-05-22 version 0.4.0
+
+- Added support for views
+- Allow different order in object fields and table fields
+
 ## 2022-05-22 version 0.3.0
 
 - Checked support for Snowflake, it works as long as the table has no primary keys
