@@ -64,7 +64,7 @@ public class MapBuilder {
         for (Parameter param : params) {
             String name = param.getName();
             YormTuple mt = tuples.stream().filter(t -> t.objectFieldName().equals(name)).findFirst()
-                .orElseThrow(() -> new YormException("Couldn't find a field name that matches the constructor"));
+                .orElseThrow(() -> new YormException("Couldn't find a field name that matches the constructor: " + name));
             sortedList.add(mt);
         }
         return sortedList;
