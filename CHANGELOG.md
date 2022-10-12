@@ -14,7 +14,7 @@
 
 ## 2022-04-10 version 0.2.0
 
-- Added support for Postgresql, thanks to [PabloGrisafi]
+- Added initial support for Postgresql, thanks to [PabloGrisafi]
 - Deletion now returns true or false
 - Added fluent API, based on [Benjiql] idea
 
