@@ -41,7 +41,7 @@ When a Java Record is operated with **Yorm**, a reflection inspection will came 
 
 - [HikariCP] - Hikari, to deal with the database
 - [MySql] - Database supported and tested
-- [PostgreSql] - Database supported and tested, courtesy of [PabloGrisafi]
+- [PostgreSql] - Initial database supported and tested, courtesy of [PabloGrisafi]
 - [Junit 5] - For the unit tests
 - [TestContainers] - Also for the unit tests
 - [Slf4j] - Logging is usually useful
