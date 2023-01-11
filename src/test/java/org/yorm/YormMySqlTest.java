@@ -249,7 +249,7 @@ class YormMySqlTest {
     @Test
     @Order(15)
     void testTimeType() throws YormException {
-        HistoryAnnotation refAnnotation = new HistoryAnnotation("Test subject", 12.4f, LocalTime.NOON);
+        HistoryAnnotation refAnnotation = new HistoryAnnotation("Test subject", 12.4f, LocalTime.NOON, "This is a jaunty text\n");
         List annotationHistories = List.of(refAnnotation);
         yorm.insert(annotationHistories);
         List<HistoryAnnotation> retrievedList = yorm.find(HistoryAnnotation.class);
@@ -260,6 +260,17 @@ class YormMySqlTest {
 
     @Test
     @Order(16)
+    void testTextType() throws YormException {
+        HistoryAnnotation refAnnotation = new HistoryAnnotation("Funny subject", 12.4f, LocalTime.MIDNIGHT, "Completely random generated text");
+        yorm.save(refAnnotation);
+        List<HistoryAnnotation> retrievedList = yorm.from(HistoryAnnotation.class).where(HistoryAnnotation::content).like("random").find();
+        assertEquals(1, retrievedList.size());
+        HistoryAnnotation retrievedAnnotation = retrievedList.get(0);
+        assertEquals(retrievedAnnotation, refAnnotation);
+    }
+
+    @Test
+    @Order(17)
     void testView() throws YormException {
         List<PersonCompany> list = yorm.from(PersonCompany.class).where(PersonCompany::isActive).equalTo(true).find();
         assertNotEquals(0, list.size());

@@ -29,7 +29,7 @@ public class RowRecordConverter {
                 }
             }
             case BIGINT -> preparedStatement.setLong(paramIndex, (long) value);
-            case VARCHAR, CHAR -> preparedStatement.setString(paramIndex, (String) value);
+            case VARCHAR, CHAR, TEXT -> preparedStatement.setString(paramIndex, (String) value);
             case DOUBLE -> preparedStatement.setDouble(paramIndex, (double) value);
             case FLOAT, REAL -> preparedStatement.setFloat(paramIndex, (float) value);
             case DECIMAL -> preparedStatement.setBigDecimal(paramIndex, (BigDecimal) value);
@@ -55,7 +55,7 @@ public class RowRecordConverter {
                 long ll = rs.getLong(dbColumnName);
                 values[params++] = ll;
             }
-            case VARCHAR, CHAR -> {
+            case VARCHAR, CHAR, TEXT -> {
                 String str = rs.getString(dbColumnName);
                 values[params++] = str;
             }

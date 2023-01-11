@@ -69,9 +69,11 @@ public class QuerySave {
             int paramIndex = 1;
             populatePreparedStatement(tuples, paramIndex, preparedStatement, obj);
             preparedStatement.executeUpdate();
-            ResultSet rs = preparedStatement.getGeneratedKeys();
-            if (rs.next()) {
-                id = rs.getInt(1);
+            if (yormTable.hasPrimaryKey()) {
+                ResultSet rs = preparedStatement.getGeneratedKeys();
+                if (rs.next()) {
+                    id = rs.getInt(1);
+                }
             }
         } catch (SQLException | IllegalAccessException | InvocationTargetException e) {
             throw new YormException("Error while force inserting record:" + obj + " into table:" + yormTable.dbTable(), e);

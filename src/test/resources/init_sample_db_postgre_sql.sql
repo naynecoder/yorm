@@ -18,8 +18,8 @@ CREATE TABLE person
     id         SERIAL PRIMARY KEY,
     name       VARCHAR(20) NOT NULL,
     email      VARCHAR(55) NOT NULL,
-    last_login TIMESTAMP    NOT NULL,
-    company_id int NOT NULL
+    last_login TIMESTAMP   NOT NULL,
+    company_id int         NOT NULL
 );
 
 DROP TABLE IF EXISTS company;
@@ -42,7 +42,7 @@ CREATE TABLE invoice
     id         SERIAL PRIMARY KEY,
     subject    VARCHAR(20) NOT NULL,
     amount     FLOAT DEFAULT 0 NULL,
-    company_id int NOT NULL
+    company_id int         NOT NULL
 );
 
 ALTER TABLE "invoice"
@@ -51,9 +51,10 @@ ALTER TABLE "invoice"
 DROP TABLE IF EXISTS history_annotation;
 CREATE TABLE history_annotation
 (
-    subject         VARCHAR(20)     NOT NULL,
+    subject         VARCHAR(20) NOT NULL,
     amount          REAL DEFAULT 0 NULL,
-    annotation_time TIME            NULL
+    annotation_time TIME NULL,
+    content         TEXT
 );
 
 DROP VIEW IF EXISTS person_company;
