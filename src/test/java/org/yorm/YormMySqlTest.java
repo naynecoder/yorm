@@ -169,7 +169,7 @@ class YormMySqlTest {
         List<Person> list = List.of(personFilter1, personFilter2);
         List<Person> personList = yorm.find(list);
         assertNotNull(personList);
-        assertEquals(2, personList.size());
+        assertEquals(3, personList.size());
         Person person1 = personList.stream().filter(p -> p.id() == 4).findFirst().get();
         assertEquals(4, person1.id());
         assertEquals("Sauron", person1.name());

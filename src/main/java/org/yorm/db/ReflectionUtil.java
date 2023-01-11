@@ -60,8 +60,7 @@ public class ReflectionUtil {
                     list.add(new MapTuple(yormTuple, sampleBoolean));
                     sampleBoolean = !sampleBoolean;
                 }
-                case VARCHAR, CHAR, TINYTEXT -> list.add(new MapTuple(yormTuple, String.valueOf(sampleNumber++)));
-                case TEXT, MEDIUMTEXT, LONGTEXT -> list.add(new MapTuple(yormTuple, String.valueOf(sampleNumber++)));
+                case VARCHAR, CHAR, TEXT -> list.add(new MapTuple(yormTuple, String.valueOf(sampleNumber++)));
                 case SMALLINT, INTEGER -> list.add(new MapTuple(yormTuple, (sampleNumber++)));
                 case BIGINT -> list.add(new MapTuple(yormTuple, (Long.valueOf(sampleNumber++))));
                 case REAL, FLOAT -> list.add(new MapTuple(yormTuple, (Float.valueOf(sampleNumber++))));
