@@ -22,7 +22,11 @@ public enum DbType {
     TIME(Types.TIME),
     TIMESTAMP(Types.TIMESTAMP),
     CHAR(Types.CHAR),
-    VARCHAR(Types.VARCHAR);
+    VARCHAR(Types.VARCHAR),
+    TEXT(Types.LONGVARCHAR),
+    MEDIUMTEXT(Types.LONGVARCHAR),
+    LONGTEXT(Types.LONGVARCHAR),
+    TINYTEXT(Types.VARCHAR);
 
     private final int sqlType;
 

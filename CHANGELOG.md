@@ -1,6 +1,11 @@
 
 # Change Log
 
+## 2023-01-11 version 0.5.0
+
+- Added support for TEXT types
+- Fixed bug when saving a record without id
+
 ## 2022-05-31 version 0.4.0
 
 - Added support for views

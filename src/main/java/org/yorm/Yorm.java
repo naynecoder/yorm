@@ -50,7 +50,6 @@ public class Yorm {
         String objectName = getRecordName(recordObj);
         YormTable yormTable = getTable(objectName, recordObj.getClass());
         queryBuilder.bulkInsert(ds, recordListObj, yormTable);
-
     }
 
     public <T extends Record> void update(T recordObj) throws YormException {
