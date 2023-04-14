@@ -25,7 +25,7 @@ class YormPostgreSqlTest {
     private static Yorm yorm;
 
     @BeforeAll
-    private static void initDb() {
+    static void initDb() {
         ds = TestConnectionFactory.getPostgreSqlConnection();
         yorm = new Yorm(ds);
     }
