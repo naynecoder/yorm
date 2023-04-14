@@ -34,7 +34,7 @@ class YormMySqlTest {
     private static Yorm yorm;
 
     @BeforeAll
-    private static void initDb() {
+    static void initDb() {
         ds = TestConnectionFactory.getMySqlConnection();
         yorm = new Yorm(ds);
     }
