@@ -53,9 +53,20 @@ public class MapBuilder {
                     tuple.objectFieldName(), tuple.dbFieldName(), tuple.type(), tuple.isNullable(), tuple.isPrimaryKey(), tuple.isAutoincrement());
             }
         }
-        Constructor<Record> constructor = (Constructor<Record>) recordClass.getConstructors()[0];
+        Constructor<Record> constructor = findMatchingConstructor(recordClass, tuples);
         tuples = sortParametersForConstructor(tuples, constructor);
         return new YormTable(dbTable, tuples, constructor);
+    }
+
+    private <T extends Record> Constructor<Record> findMatchingConstructor(Class<T> recordClass, List<YormTuple> tuples) throws YormException {
+        Constructor<Record>[] constructors = (Constructor<Record>[]) recordClass.getConstructors();
+        for (Constructor<Record> constructor : constructors) {
+            Parameter[] params = constructor.getParameters();
+            if (params.length == tuples.size()) {
+                return constructor;
+            }
+        }
+        throw new YormException("Couldn't find a constructor that matches the number of fields in the record: " + recordClass.getName());
     }
 
     private List<YormTuple> sortParametersForConstructor(List<YormTuple> tuples, Constructor<Record> constructor) throws YormException {

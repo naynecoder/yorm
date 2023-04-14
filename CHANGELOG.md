@@ -1,6 +1,10 @@
 
 # Change Log
 
+## 2023-04-14 version 0.6.0
+
+- Added support for records with several constructors
+
 ## 2023-01-11 version 0.5.0
 
 - Added support for TEXT types
