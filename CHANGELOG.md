@@ -1,6 +1,10 @@
 
 # Change Log
 
+## 2023-04-17 version 0.7.0
+
+- Small fix when using ids with integer
+
 ## 2023-04-14 version 0.6.0
 
 - Added support for records with several constructors
