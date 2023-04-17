@@ -44,8 +44,7 @@ public class QueryBuilder {
             idInsert = QuerySave.forceInsert(ds, obj, yormTable);
         } else {
             YormTuple yormTuple = idField.get();
-            long id = (long) yormTuple.method().invoke(obj);
-            if (id == 0) {
+            if (emptyId(obj, yormTuple)) {
                 idInsert = QuerySave.insert(ds, obj, yormTable);
             } else {
                 QuerySave.update(ds, obj, yormTable);
@@ -54,7 +53,21 @@ public class QueryBuilder {
         return idInsert;
     }
 
-    public  boolean delete(DataSource ds, YormTable yormTable, long id) throws YormException {
+    private boolean emptyId(Record obj, YormTuple yormTuple) throws InvocationTargetException, IllegalAccessException {
+        Object idObject = yormTuple.method().invoke(obj);
+        if (idObject == null) {
+            return true;
+        }
+        if (yormTuple.method().getReturnType().getName().equalsIgnoreCase("long")) {
+            return (long) idObject == 0;
+        }
+        if (yormTuple.method().getReturnType().getName().equalsIgnoreCase("int")) {
+            return (int) idObject == 0;
+        }
+        return false;
+    }
+
+    public boolean delete(DataSource ds, YormTable yormTable, long id) throws YormException {
         return QueryDelete.delete(ds, yormTable, id);
     }
 
@@ -122,7 +135,7 @@ public class QueryBuilder {
             if (!valueStr.isEmpty()) {
                 filteringFieldValueList.add(new FilteringFieldValue(dbFieldName, type, "%" + valueStr + "%", ComparisonOperator.LIKE, whereOperator));
             }
-        }else{
+        } else {
             filteringFieldValueList.add(new FilteringFieldValue(dbFieldName, type, value, ComparisonOperator.EQUALS, whereOperator));
         }
     }
