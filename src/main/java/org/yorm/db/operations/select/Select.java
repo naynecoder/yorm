@@ -8,7 +8,6 @@ import org.yorm.IdentifiableFunction;
 import org.yorm.YormTable;
 import org.yorm.YormTuple;
 import org.yorm.db.FilteringFieldValue;
-import org.yorm.db.ReflectionUtil;
 import org.yorm.db.operations.QueryFind;
 import org.yorm.db.operations.operators.ComparisonOperator;
 import org.yorm.db.operations.operators.WhereOperator;
@@ -44,7 +43,7 @@ public class Select<T extends Record> {
 
     private <U> SelectComparison<T, U> where(IdentifiableFunction<T, U> getter, WhereOperator whereOperator)
         throws YormException {
-        String getterName = ReflectionUtil.getInstance().getFunctionName(getter);
+        String getterName = getter.getCallingFunctionName();
         YormTuple currentTuple = yormTable.getTupleWithObjectFieldName(getterName);
         return new SelectComparison<>() {
             public Select<T> equalTo(U value) {

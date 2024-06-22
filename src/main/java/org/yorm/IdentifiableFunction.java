@@ -22,7 +22,7 @@ import java.util.function.Function;
 public interface IdentifiableFunction<T, R> extends Serializable {
     R apply(T t);
 
-    default String getCallingFunctionName() throws Throwable {
+    default String getCallingFunctionName() {
         return IdentifiableFunction.getCallingFunctionName(this);
     }
 
@@ -36,7 +36,7 @@ public interface IdentifiableFunction<T, R> extends Serializable {
         }
     }
 
-    private static String getCallingFunctionName(IdentifiableFunction<?, ?> identifiableFunction) throws Throwable {
+    private static String getCallingFunctionName(IdentifiableFunction<?, ?> identifiableFunction) {
         try {
             MethodHandle writeReplaceMethodHandle =
                     PrivateData.INSTANCE.writeReplaceMethodHandles.computeIfAbsent(identifiableFunction.getClass(), clazz -> {
@@ -55,7 +55,7 @@ public interface IdentifiableFunction<T, R> extends Serializable {
 
             return serializedLambda.getImplMethodName();
         } catch (Throwable t) {
-            throw new YormException("Could not identify function name.", t);
+            throw new RuntimeException("Could not identify function name.", t);
         }
     }
 }

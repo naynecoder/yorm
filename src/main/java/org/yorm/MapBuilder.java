@@ -4,8 +4,18 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.sql.*;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import org.slf4j.Logger;
@@ -57,14 +67,8 @@ public class MapBuilder {
 
     private <T extends Record> Constructor<Record> findMatchingConstructor(Class<T> recordClass, List<YormTuple> tuples) throws YormException {
         Constructor<Record>[] constructors = (Constructor<Record>[]) recordClass.getConstructors();
-        if (logger.isDebugEnabled()) {
-            logger.debug("Found {} constructors for record:{}", constructors.length, recordClass.getName());
-        }
         for (Constructor<Record> constructor : constructors) {
             Parameter[] params = constructor.getParameters();
-            if (logger.isDebugEnabled()) {
-                logger.debug("Found constructor that takes {} parameters. We need one that takes {}.", params.length, tuples.size());
-            }
             if (params.length == tuples.size()) {
                 return constructor;
             }
@@ -96,23 +100,13 @@ public class MapBuilder {
     private List<YormTuple> populateMap(Field[] objectFields, List<Description> descriptionList, Map<String, Method> methods) throws YormException {
         List<YormTuple> tuples = new ArrayList<>();
         Set<String> alreadyUsedObjectFields = new HashSet<>();
-        if (logger.isDebugEnabled()) {
-            logger.debug("Matching fields {} to columns: {}", objectFields, descriptionList);
-        }
         for (Description description : descriptionList) {
 
             List<String> objectFieldNames = Arrays.stream(objectFields).map(Field::getName).toList();
             String objectField = findClosest(objectFieldNames, description.columnName());
 
             if (alreadyUsedObjectFields.contains(objectField)) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Column named \"{}\" mapped to \"{}\", which is already used. Ignoring.", description.columnName(), objectField);
-                }
                 continue;
-            }
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("Column named \"{}\" mapped to \"{}\". Forming YormTuple.", description.columnName(), objectField);
             }
 
             Method method = methods.get(objectField.toLowerCase());
@@ -189,9 +183,6 @@ public class MapBuilder {
         int distance = 100;
         for (String field : candidates) {
             int tempDist = Levenshtein.calculate(cleanName(field), cleanName(target));
-            if (logger.isDebugEnabled()) {
-                logger.debug("Distance between \"{}\" and \"{}\" is {}. Distance to beat is {}.", field, target, tempDist, distance);
-            }
             if (tempDist < distance) {
                 closest = field;
                 distance = tempDist;
@@ -203,6 +194,5 @@ public class MapBuilder {
     private String cleanName(String str) {
         return str.toLowerCase(Locale.ROOT).replace("_", "");
     }
-
 }
 

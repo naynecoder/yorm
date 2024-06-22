@@ -8,17 +8,18 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.math.BigDecimal;
-import java.sql.*;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Map;
 
 public class RowRecordConverter {
-    private static String test =
-            """
-                
-            """;
     private static final Logger logger = LoggerFactory.getLogger(RowRecordConverter.class);
 
     private static final Map<Class<?>, Converter<?>> PASS_THROUGH_CONVERTERS = Map.ofEntries(
@@ -152,8 +153,6 @@ public class RowRecordConverter {
             //noinspection unchecked
             return (Converter<OutputType>) PASS_THROUGH_CONVERTERS.get(double.class);
         }
-
-
 
         throw new RuntimeException(String.format(
                 "No deserializer found for %s to %s. You should file a bug to let us know what we need to add!",
