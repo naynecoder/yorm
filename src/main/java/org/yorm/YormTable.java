@@ -3,7 +3,7 @@ package org.yorm;
 import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.yorm.db.ReflectionUtil;
+
 import org.yorm.exception.YormException;
 
 public record YormTable(
@@ -12,7 +12,6 @@ public record YormTable(
     Constructor<Record> constructor,
     String concatenatedFieldNames,
     String selectAllFromTable,
-    ReflectionUtil reflectionUtil,
     boolean hasPrimaryKey
 ) {
 
@@ -23,9 +22,20 @@ public record YormTable(
             constructor,
             tuples.stream().map(YormTuple::dbFieldName).collect(Collectors.joining(", ")),
             tuples.stream().map(YormTuple::dbFieldName).collect(Collectors.joining(", ", "SELECT ", " FROM " + dbTable)),
-            new ReflectionUtil(constructor, tuples),
             tuples.stream().anyMatch(YormTuple::isPrimaryKey)
         );
+    }
+
+    public YormTuple getTupleWithDBFieldName(String fieldName) throws YormException {
+        return this.tuples().stream().filter(tuple -> tuple.dbFieldName().equals(fieldName))
+                             .findFirst()
+                             .orElseThrow(() -> new YormException("Field not found: " + fieldName));
+    }
+
+    public YormTuple getTupleWithObjectFieldName(String fieldName) throws YormException {
+        return this.tuples().stream().filter(tuple -> tuple.objectFieldName().equals(fieldName))
+                   .findFirst()
+                   .orElseThrow(() -> new YormException("Field not found: " + fieldName));
     }
 
 

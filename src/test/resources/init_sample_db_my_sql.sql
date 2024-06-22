@@ -25,7 +25,7 @@ CREATE TABLE person
     name       VARCHAR(20) NOT NULL,
     email      VARCHAR(55) NOT NULL,
     last_login DATETIME    NOT NULL,
-    company_id int(10) NOT NULL
+    company_id INT(10)     NOT NULL
 );
 
 DROP TABLE IF EXISTS company;
@@ -36,7 +36,9 @@ CREATE TABLE company
     country_code  VARCHAR(2)  NOT NULL,
     creation_date DATE        NOT NULL,
     debt          FLOAT DEFAULT 0 NULL,
-    is_active     TINYINT     NOT NULL
+    is_active     TINYINT     NOT NULL,
+    company_type  ENUM('GREEDY', 'NOT_GREEDY') NOT NULL,
+    is_evil       BOOL        NOT NULL
 );
 
 ALTER TABLE `person`
@@ -48,7 +50,7 @@ CREATE TABLE invoice
     id         INT(10) AUTO_INCREMENT PRIMARY KEY NOT NULL,
     subject    VARCHAR(20) NOT NULL,
     amount     FLOAT DEFAULT 0 NULL,
-    company_id int(10) NOT NULL
+    company_id INT(10) NOT NULL
 );
 
 ALTER TABLE `invoice`

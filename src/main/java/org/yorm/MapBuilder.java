@@ -8,20 +8,23 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yorm.db.operations.FilterPredicates;
 import org.yorm.exception.YormException;
 import org.yorm.util.DbType;
 import org.yorm.util.Levenshtein;
+
+import static org.yorm.util.RowRecordConverter.converterFor;
 
 public class MapBuilder {
 
@@ -36,7 +39,11 @@ public class MapBuilder {
         String recordClassName = recordClass.getSimpleName().toLowerCase(Locale.ROOT);
         String dbTable = recordClassName;
         Field[] objectFields = recordClass.getDeclaredFields();
-        List<Method> methods = Arrays.asList(recordClass.getMethods());
+        Map<String, Method> methods = Arrays.stream(recordClass.getDeclaredMethods())
+                                            .collect(Collectors.toMap(
+                                                    method -> method.getName().toLowerCase(),
+                                                    method -> method
+                                            ));
         List<YormTuple> tuples;
         try (Connection connection = ds.getConnection()) {
             DatabaseMetaData metaData = connection.getMetaData();
@@ -90,23 +97,35 @@ public class MapBuilder {
         return findClosest(tables, recordClassName);
     }
 
-    private List<YormTuple> populateMap(Field[] objectFields, List<Description> descriptionList, List<Method> methods) throws YormException {
+    private List<YormTuple> populateMap(Field[] objectFields, List<Description> descriptionList, Map<String, Method> methods) throws YormException {
         List<YormTuple> tuples = new ArrayList<>();
         Set<String> alreadyUsedObjectFields = new HashSet<>();
         for (Description description : descriptionList) {
-            List<String> objectFieldNames = Arrays.asList(objectFields).stream().map(Field::getName).toList();
+
+            List<String> objectFieldNames = Arrays.stream(objectFields).map(Field::getName).toList();
             String objectField = findClosest(objectFieldNames, description.columnName());
+
             if (alreadyUsedObjectFields.contains(objectField)) {
                 continue;
             }
-            Optional<Method> methodOptional = methods.stream().filter(FilterPredicates.getMethod(objectField)).findFirst();
-            if (!methodOptional.isEmpty()) {
-                alreadyUsedObjectFields.add(objectField);
-                var tuple = new YormTuple(description.columnName(), objectField, DbType.getType(description.type()),
-                    Integer.parseInt(description.size()), yesNoToBoolean(description.isNullable()),
-                    description.isPrimaryKey(), yesNoToBoolean(description.isAutoincrement()), methodOptional.get());
-                tuples.add(tuple);
-            }
+
+            Method method = methods.get(objectField.toLowerCase());
+
+            alreadyUsedObjectFields.add(objectField);
+            var tuple = new YormTuple(
+                    description.columnName(),
+                    objectField,
+                    DbType.getType(description.type()),
+                    Integer.parseInt(description.size()),
+                    yesNoToBoolean(description.isNullable()),
+                    description.isPrimaryKey(),
+                    yesNoToBoolean(description.isAutoincrement()),
+                    method,
+                    converterFor(method.getReturnType(), DbType.getType(description.type()).javaType),
+                    converterFor(DbType.getType(description.type()).javaType, method.getReturnType())
+            );
+            tuples.add(tuple);
+
         }
         return tuples;
     }
@@ -136,7 +155,13 @@ public class MapBuilder {
         try (ResultSet rsColumn = metaData.getColumns(null, null, table, null)) {
             while (rsColumn.next()) {
                 String columnName = rsColumn.getString("COLUMN_NAME");
-                String type = rsColumn.getString("DATA_TYPE");
+                String typeName = rsColumn.getString("TYPE_NAME");
+                String type;
+                if ("ENUM".equals(typeName)) {
+                    type = String.valueOf(Types.VARCHAR);
+                } else {
+                    type = rsColumn.getString("DATA_TYPE");
+                }
                 String size = rsColumn.getString("COLUMN_SIZE");
                 String isNull = rsColumn.getString("IS_NULLABLE");
                 String isAutoincrement = rsColumn.getString("IS_AUTOINCREMENT");
@@ -153,11 +178,11 @@ public class MapBuilder {
 
     }
 
-    private String findClosest(List<String> fields, String fieldName) {
+    private String findClosest(List<String> candidates, String target) {
         String closest = null;
         int distance = 100;
-        for (String field : fields) {
-            int tempDist = Levenshtein.calculate(cleanName(field), cleanName(fieldName));
+        for (String field : candidates) {
+            int tempDist = Levenshtein.calculate(cleanName(field), cleanName(target));
             if (tempDist < distance) {
                 closest = field;
                 distance = tempDist;
@@ -169,6 +194,5 @@ public class MapBuilder {
     private String cleanName(String str) {
         return str.toLowerCase(Locale.ROOT).replace("_", "");
     }
-
 }
 

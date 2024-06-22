@@ -2,8 +2,9 @@ package org.yorm.db.operations.select;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 import javax.sql.DataSource;
+
+import org.yorm.IdentifiableFunction;
 import org.yorm.YormTable;
 import org.yorm.YormTuple;
 import org.yorm.db.FilteringFieldValue;
@@ -23,15 +24,15 @@ public class Select<T extends Record> {
         this.yormTable = yormTable;
     }
 
-    public <U> SelectComparison<T, U> where(Function<T, U> getter) throws YormException {
+    public <U> SelectComparison<T, U> where(IdentifiableFunction<T, U> getter) throws YormException {
         return where(getter, WhereOperator.EMPTY);
     }
 
-    public <U> SelectComparison<T, U> and(Function<T, U> getter) throws YormException {
+    public <U> SelectComparison<T, U> and(IdentifiableFunction<T, U> getter) throws YormException {
         return where(getter, WhereOperator.AND);
     }
 
-    public <U> SelectComparison<T, U> or(Function<T, U> getter) throws YormException {
+    public <U> SelectComparison<T, U> or(IdentifiableFunction<T, U> getter) throws YormException {
         return where(getter, WhereOperator.OR);
     }
 
@@ -40,10 +41,10 @@ public class Select<T extends Record> {
     }
 
 
-    private <U> SelectComparison<T, U> where(Function<T, U> getter, WhereOperator whereOperator)
+    private <U> SelectComparison<T, U> where(IdentifiableFunction<T, U> getter, WhereOperator whereOperator)
         throws YormException {
-        String getterName = this.yormTable.reflectionUtil().getFunctionName(getter);
-        YormTuple currentTuple = getTuple(getterName);
+        String getterName = getter.getCallingFunctionName();
+        YormTuple currentTuple = yormTable.getTupleWithObjectFieldName(getterName);
         return new SelectComparison<>() {
             public Select<T> equalTo(U value) {
                 FilteringFieldValue filteringFieldValue = new FilteringFieldValue(currentTuple.dbFieldName(), currentTuple.type(), value, ComparisonOperator.EQUALS, whereOperator);
@@ -78,12 +79,6 @@ public class Select<T extends Record> {
                 return Select.this;
             }
         };
-    }
-
-    private YormTuple getTuple(String fieldName) throws YormException {
-        return this.yormTable.tuples().stream().filter(tuple -> tuple.dbFieldName().equals(fieldName))
-            .findFirst()
-            .orElseThrow(() -> new YormException("Field not found: " + fieldName));
     }
 
     public interface SelectComparison<T extends Record, U> {

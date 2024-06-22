@@ -30,7 +30,9 @@ CREATE TABLE company
     country_code  VARCHAR(2)  NOT NULL,
     creation_date DATE        NOT NULL,
     debt          REAL DEFAULT 0 NULL,
-    is_active     BOOLEAN     NOT NULL
+    is_active     BOOLEAN     NOT NULL,
+    company_type  VARCHAR(10) NOT NULL,
+    is_evil       BOOLEAN     NOT NULL
 );
 
 ALTER TABLE "person"

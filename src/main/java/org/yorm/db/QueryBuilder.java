@@ -92,7 +92,7 @@ public class QueryBuilder {
         if (optionalFilteringTupleId.isEmpty()) {
             return new ArrayList<>();
         }
-        long id = (long) optionalFilteringTupleId.get().method().invoke(filterObject);
+        int id = (int) optionalFilteringTupleId.get().method().invoke(filterObject);
         return QueryFind.findByForeignId(ds, yormTableObject, foreignKey, id);
     }
 

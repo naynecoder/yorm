@@ -2,12 +2,9 @@ package org.yorm;
 
 import java.time.LocalTime;
 import org.junit.jupiter.api.*;
+import org.slf4j.simple.SimpleLogger;
 import org.yorm.exception.YormException;
-import org.yorm.records.Company;
-import org.yorm.records.HistoryAnnotation;
-import org.yorm.records.Invoice;
-import org.yorm.records.Person;
-import org.yorm.records.PersonCompany;
+import org.yorm.records.*;
 import org.yorm.util.DbType;
 import org.yorm.utils.TestConnectionFactory;
 
@@ -26,6 +23,7 @@ class YormPostgreSqlTest {
 
     @BeforeAll
     static void initDb() {
+        System.setProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "DEBUG");
         ds = TestConnectionFactory.getPostgreSqlConnection();
         yorm = new Yorm(ds);
     }
@@ -66,10 +64,10 @@ class YormPostgreSqlTest {
     @Test
     @Order(2)
     void saveCompany() throws YormException {
-        Company company = new Company(0, "Hogwarts", "GB", LocalDate.of(1968, 2, 12), 154.1f, true);
+        Company company = new Company(0, "Hogwarts", "GB", LocalDate.of(1968, 2, 12), 154.1f, true, CompanyType.NOT_GREEDY, false);
         long id = yorm.save(company);
         assertEquals(1, id);
-        Company company2 = new Company(0, "Mordor", "ZZ", LocalDate.of(114, 11, 5), 0f, false);
+        Company company2 = new Company(0, "Mordor", "ZZ", LocalDate.of(114, 11, 5), 0f, false, CompanyType.GREEDY, true);
         long id2 = yorm.save(company2);
         assertEquals(2, id2);
     }
@@ -138,7 +136,7 @@ class YormPostgreSqlTest {
     @Test
     @Order(8)
     void getWithForeignKey() throws YormException {
-        Company company = new Company(1, null, null, null, 0, false);
+        Company company = new Company(1, null, null, null, 0, false, CompanyType.NOT_GREEDY, true);
         List<Person> personList = yorm.find(Person.class, company);
         assertNotNull(personList);
         assertEquals(3, personList.size());
@@ -146,7 +144,7 @@ class YormPostgreSqlTest {
         assertEquals("Hermione", person2.name());
         assertEquals("hermione.granger@hogwarts.com", person2.email());
         assertEquals(1, person2.companyId());
-        List<Person> personList2 = yorm.find(Person.class, new Company(2, null, null, null, 0, false));
+        List<Person> personList2 = yorm.find(Person.class, new Company(2, null, null, null, 0, false, CompanyType.GREEDY, false));
         assertNotNull(personList2);
         assertEquals(1, personList2.size());
         Person person1 = personList2.get(0);
