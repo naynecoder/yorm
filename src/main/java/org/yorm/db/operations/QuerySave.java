@@ -141,7 +141,7 @@ public class QuerySave {
             Method method = tuple.method();
             final Object value = method.invoke(obj);
             final DbType type = tuple.type();
-            rowRecordConverter.recordToRow(paramIndex, preparedStatement, tuple.dbFieldName(), value, type);
+            rowRecordConverter.recordToRow(paramIndex, preparedStatement, tuple.dbFieldName(), value, type, tuple.serializer());
             paramIndex++;
         }
         return paramIndex;

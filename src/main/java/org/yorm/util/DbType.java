@@ -1,34 +1,45 @@
 package org.yorm.util;
 
+import org.yorm.exception.YormException;
+
+import java.math.BigDecimal;
+import java.sql.Time;
 import java.sql.Types;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import org.yorm.exception.YormException;
 
 public enum DbType {
     //TODO: include all Types.whatever
-    TINYINT(Types.TINYINT),
-    BOOLEAN(Types.BOOLEAN),
-    SMALLINT(Types.SMALLINT),
-    INTEGER(Types.INTEGER),
-    BIGINT(Types.BIGINT),
-    FLOAT(Types.FLOAT),
-    DOUBLE(Types.DOUBLE),
-    REAL(Types.REAL),
-    DECIMAL(Types.DECIMAL),
-    BIT(Types.BIT),
-    DATE(Types.DATE),
-    TIME(Types.TIME),
-    TIMESTAMP(Types.TIMESTAMP),
-    CHAR(Types.CHAR),
-    VARCHAR(Types.VARCHAR),
-    TEXT(Types.LONGVARCHAR);
+    TINYINT(Types.TINYINT, boolean.class),
+    BOOLEAN(Types.BOOLEAN, boolean.class),
+    SMALLINT(Types.SMALLINT, int.class),
+    INTEGER(Types.INTEGER, int.class),
+    // TODO: Should this be an actual BigInteger?
+    BIGINT(Types.BIGINT, long.class),
+    FLOAT(Types.FLOAT, float.class),
+    DOUBLE(Types.DOUBLE, double.class),
+    REAL(Types.REAL, float.class),
+    DECIMAL(Types.DECIMAL, BigDecimal.class),
+    BIT(Types.BIT, boolean.class),
+    DATE(Types.DATE, LocalDate.class),
+    TIME(Types.TIME, LocalTime.class),
+    TIMESTAMP(Types.TIMESTAMP, LocalDateTime.class),
+    CHAR(Types.CHAR, char.class),
+    VARCHAR(Types.VARCHAR, String.class),
+    TEXT(Types.LONGVARCHAR, String.class);
 
-    private final int sqlType;
+    public final int sqlType;
+    public final Class<?> javaType;
 
-    DbType(int sqlType) {
+    DbType(int sqlType, Class<?> javaType) {
         this.sqlType = sqlType;
+        this.javaType = javaType;
     }
 
     private static final Map<Integer, DbType> MAP = new HashMap<>();

@@ -99,7 +99,7 @@ public class QueryFind {
             PreparedStatement preparedStatement = connection.prepareStatement(completeQuery)) {
             int paramIndex = 1;
             for (FilteringFieldValue fieldValue : filteringList) {
-                rowRecordConverter.recordToRow(paramIndex, preparedStatement, fieldValue.fieldName(), fieldValue.value(), fieldValue.dbType());
+                rowRecordConverter.recordToRow(paramIndex, preparedStatement, fieldValue.fieldName(), fieldValue.value(), fieldValue.dbType(), yormTable.getTupleWithDBFieldName(fieldValue.fieldName()).serializer());
                 paramIndex++;
             }
             ResultSet rs = preparedStatement.executeQuery();
@@ -125,7 +125,7 @@ public class QueryFind {
 
     private static void loopResults(List<YormTuple> tuples, ResultSet rs, Object[] values, int params) throws SQLException, YormException {
         for (YormTuple tuple : tuples) {
-            params = rowRecordConverter.rowToRecord(rs, values, params, tuple.dbFieldName(), tuple.type());
+            params = rowRecordConverter.rowToRecord(rs, values, params, tuple.dbFieldName(), tuple.type(), tuple.deserializer());
         }
     }
 

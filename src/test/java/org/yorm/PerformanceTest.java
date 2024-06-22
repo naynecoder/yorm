@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yorm.exception.YormException;
 import org.yorm.records.Company;
+import org.yorm.records.CompanyType;
 import org.yorm.records.Person;
 import org.yorm.utils.TestConnectionFactory;
 import org.yorm.utils.TestDbHelper;
@@ -36,7 +37,7 @@ class PerformanceTest {
     @Test
     void testPerformance() throws YormException {
         int companyId = 1;
-        Company company = new Company(companyId, "randomString", "ZZ", LocalDate.now(), 0, true);
+        Company company = new Company(companyId, "randomString", "ZZ", LocalDate.now(), 0, true, CompanyType.GREEDY, true);
         yorm.insert(company);
         List<Long> metricsInsertingYorm = new ArrayList<>();
         List<Long> metricsFindingYorm = new ArrayList<>();

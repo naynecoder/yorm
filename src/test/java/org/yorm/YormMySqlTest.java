@@ -18,12 +18,9 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.slf4j.simple.SimpleLogger;
 import org.yorm.exception.YormException;
-import org.yorm.records.Company;
-import org.yorm.records.HistoryAnnotation;
-import org.yorm.records.Invoice;
-import org.yorm.records.Person;
-import org.yorm.records.PersonCompany;
+import org.yorm.records.*;
 import org.yorm.util.DbType;
 import org.yorm.utils.TestConnectionFactory;
 
@@ -35,6 +32,7 @@ class YormMySqlTest {
 
     @BeforeAll
     static void initDb() {
+        System.setProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "DEBUG");
         ds = TestConnectionFactory.getMySqlConnection();
         yorm = new Yorm(ds);
     }
@@ -72,10 +70,11 @@ class YormMySqlTest {
     @Test
     @Order(2)
     void saveCompany() throws YormException {
-        Company company = new Company(0, "Hogwarts", "GB", LocalDate.of(1968, 2, 12), 154.1f, true);
+        CompanyType companyType = CompanyType.values()[0];
+        Company company = new Company(0, "Hogwarts", "GB", LocalDate.of(1968, 2, 12), 154.1f, true, CompanyType.NOT_GREEDY, false);
         long id = yorm.save(company);
         assertEquals(1, id);
-        Company company2 = new Company(0, "Mordor", "ZZ", LocalDate.of(114, 11, 5), 0f, false);
+        Company company2 = new Company(0, "Mordor", "ZZ", LocalDate.of(114, 11, 5), 0f, false, CompanyType.GREEDY, true);
         long id2 = yorm.save(company2);
         assertEquals(2, id2);
     }
@@ -83,13 +82,23 @@ class YormMySqlTest {
     @Test
     @Order(3)
     void getCompany() throws YormException {
-        Company company = yorm.find(Company.class, 1);
-        assertEquals("GB", company.countryCode());
-        assertEquals("Hogwarts", company.name());
-        assertEquals(LocalDate.of(1968, 2, 12), company.date());
-        assertEquals(154.1f, company.debt());
-        assertTrue(company.isActive());
+        Company hogwarts = yorm.find(Company.class, 1);
+        assertEquals("GB", hogwarts.countryCode());
+        assertEquals("Hogwarts", hogwarts.name());
+        assertEquals(LocalDate.of(1968, 2, 12), hogwarts.date());
+        assertEquals(154.1f, hogwarts.debt());
+        assertTrue(hogwarts.isActive());
+        assertEquals(CompanyType.NOT_GREEDY, hogwarts.companyType());
+        assertFalse(hogwarts.isEvil());
 
+        Company mordor = yorm.find(Company.class, 2);
+        assertEquals("ZZ", mordor.countryCode());
+        assertEquals("Mordor", mordor.name());
+        assertEquals(LocalDate.of(114, 11, 5), mordor.date());
+        assertEquals(0f, mordor.debt());
+        assertFalse(mordor.isActive());
+        assertEquals(CompanyType.GREEDY, mordor.companyType());
+        assertTrue(mordor.isEvil());
     }
 
     @Test
@@ -144,7 +153,7 @@ class YormMySqlTest {
     @Test
     @Order(8)
     void getWithForeignKey() throws YormException {
-        Company company = new Company(1, null, null, null, 0, false);
+        Company company = new Company(1, null, null, null, 0, false, CompanyType.GREEDY, true);
         List<Person> personList = yorm.find(Person.class, company);
         assertNotNull(personList);
         assertEquals(3, personList.size());
@@ -152,7 +161,7 @@ class YormMySqlTest {
         assertEquals("Hermione", person2.name());
         assertEquals("hermione.granger@hogwarts.com", person2.email());
         assertEquals(1, person2.companyId());
-        List<Person> personList2 = yorm.find(Person.class, new Company(2, null, null, null, 0, false));
+        List<Person> personList2 = yorm.find(Person.class, new Company(2, null, null, null, 0, false, CompanyType.NOT_GREEDY, false));
         assertNotNull(personList2);
         assertEquals(1, personList2.size());
         Person person1 = personList2.get(0);

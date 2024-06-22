@@ -206,9 +206,9 @@ You can easily add Yorm to your project with
 
 
 #### Building from source
-
-**Yorm** is a library that uses Maven. It can be very easily compiled like
-
+##### Dependencies
+ * Docker
+##### Instructions
 ```sh
 mvn clean install
 ```
