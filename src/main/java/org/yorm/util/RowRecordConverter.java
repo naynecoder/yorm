@@ -247,7 +247,6 @@ public class RowRecordConverter {
             DbType type,
             Converter<?> converter
     ) throws SQLException, YormException {
-        try {
             switch (type) {
                 //MySql does not have a truly boolean type, bool/boolean are a synonym of tinyint(1)
                 //Postgresql maps booleans to bits
@@ -272,13 +271,6 @@ public class RowRecordConverter {
                 case TIMESTAMP -> preparedStatement.setTimestamp(paramIndex, Timestamp.valueOf((LocalDateTime) converter.convert(value)));
                 default -> throw new YormException("Couldn't find type for " + dbColumnName);
             }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } catch (YormException e) {
-            throw new RuntimeException(e);
-        } catch (RuntimeException e) {
-            throw e;
-        }
     }
 
     public int rowToRecord(
