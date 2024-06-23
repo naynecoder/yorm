@@ -11,7 +11,7 @@ In the world of microservices, there is a tendency to have very contained logic 
 and hence reduced databases, that in many cases are simply no more than several tables with not that many fields.
 Java Records usually are a perfect fit for basic CRUD operations, and here is where Yorm shines.
 
-**Yorm** needs at least Java 17.
+**Yorm** needs at least Java 17, although it works of newer versions as well.
 
 **Yorm** might be for you in case:
 
@@ -41,12 +41,12 @@ When a Java Record is operated with **Yorm**, a reflection inspection will came 
 
 - [HikariCP] - Hikari, to deal with the database
 - [MySql] - Database supported and tested
-- [PostgreSql] - Initial database supported and tested, courtesy of [PabloGrisafi]
+- [PostgreSql] - Database supported and tested, courtesy of [PabloGrisafi]
 - [Junit 5] - For the unit tests
 - [TestContainers] - Also for the unit tests
 - [Slf4j] - Logging is usually useful
 
-And that's it, the **Yorm** lies heavily on Java 17 Records and Reflections.
+And that's it, the **Yorm** lies heavily on Java Records and Reflections.
 
 **Yorm** has been tested with Snowflake, and it works as long as the table
 has no primary keys, and the Jvm is run with the option *--add-opens java.base/java.nio=ALL-UNNAMED*
@@ -200,14 +200,16 @@ You can easily add Yorm to your project with
 <dependency>
   <groupId>org.yorm</groupId>
   <artifactId>yorm</artifactId>
-  <version>0.0.4</version>
+  <version>0.0.8</version>
 </dependency>
 ```
 
 
 #### Building from source
+##### Dependencies
+ * Docker
 
-**Yorm** is a library that uses Maven. It can be very easily compiled like
+ **Yorm** is a small library published in Maven Central. It can be very easily compiled like
 
 ```sh
 mvn clean install
