@@ -1,6 +1,11 @@
 
 # Change Log
 
+## 2024-06-23 version 0.8.0
+
+- Fix on records with several boolean fields
+- Added support for Enums, thanks to [thewildllama]
+
 ## 2023-04-17 version 0.7.0
 
 - Small fix when using ids with integer
@@ -38,3 +43,4 @@
 
 [PabloGrisafi]: <https://github.com/pablogrisafi1975>
 [Benjiql]: <https://github.com/benjiman/benjiql>
+[thewildllama]: <https://github.com/thewildllama>

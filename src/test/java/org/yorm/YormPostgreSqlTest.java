@@ -1,10 +1,27 @@
 package org.yorm;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.time.LocalTime;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.slf4j.simple.SimpleLogger;
 import org.yorm.exception.YormException;
-import org.yorm.records.*;
+import org.yorm.records.Company;
+import org.yorm.records.CompanyType;
+import org.yorm.records.HistoryAnnotation;
+import org.yorm.records.Invoice;
+import org.yorm.records.Person;
+import org.yorm.records.PersonCompany;
 import org.yorm.util.DbType;
 import org.yorm.utils.TestConnectionFactory;
 
@@ -12,8 +29,6 @@ import javax.sql.DataSource;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class YormPostgreSqlTest {

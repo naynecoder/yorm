@@ -6,7 +6,7 @@
 
   <groupId>org.yorm</groupId>
   <artifactId>yorm</artifactId>
-  <version>0.0.7</version>
+  <version>0.0.8</version>
 
   <packaging>jar</packaging>
 
@@ -36,15 +36,15 @@
   <properties>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
-    <version.junit>5.9.2</version.junit>
-    <version.hikaricp>5.0.1</version.hikaricp>
-    <version.mysql>8.0.32</version.mysql>
-    <version.slf4j-api>2.0.7</version.slf4j-api>
-    <version.log4j-slf4j-impl>2.20.0</version.log4j-slf4j-impl>
-    <version.testcontainers>1.18.0</version.testcontainers>
+    <version.junit>5.10.2</version.junit>
+    <version.hikaricp>5.1.0</version.hikaricp>
+    <version.mysql>8.0.33</version.mysql>
+    <version.slf4j-api>2.0.13</version.slf4j-api>
+    <version.log4j-slf4j-impl>2.23.1</version.log4j-slf4j-impl>
+    <version.testcontainers>1.19.8</version.testcontainers>
     <version.maven-surefire>3.0.0-M5</version.maven-surefire>
-    <version.log4j>2.20.0</version.log4j>
-    <version.postgresql>42.6.0</version.postgresql>
+    <version.log4j>2.23.1</version.log4j>
+    <version.postgresql>42.7.3</version.postgresql>
   </properties>
   <dependencies>
     <dependency>
@@ -56,6 +56,12 @@
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-slf4j-impl</artifactId>
       <version>${version.log4j-slf4j-impl}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>2.0.13</version>
       <scope>test</scope>
     </dependency>
     <dependency>
