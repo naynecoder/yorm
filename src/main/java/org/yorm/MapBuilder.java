@@ -89,12 +89,15 @@ public class MapBuilder {
     }
 
     private String getMatchingTableName(DatabaseMetaData metaData, String recordClassName) throws SQLException {
-        ResultSet resultSet = metaData.getTables(null, null, null, new String[]{"TABLE", "VIEW"});
-        List<String> tables = new ArrayList<>();
-        while (resultSet.next()) {
-            tables.add(resultSet.getString("TABLE_NAME"));
+        try(
+                ResultSet resultSet = metaData.getTables(null, null, "%", null);
+        ) {
+            List<String> tables = new ArrayList<>();
+            while (resultSet.next()) {
+                tables.add(resultSet.getString("TABLE_NAME"));
+            }
+            return findClosest(tables, recordClassName);
         }
-        return findClosest(tables, recordClassName);
     }
 
     private List<YormTuple> populateMap(Field[] objectFields, List<Description> descriptionList, Map<String, Method> methods) throws YormException {

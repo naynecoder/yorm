@@ -32,6 +32,8 @@ public class Yorm {
             result = queryBuilder.save(ds, recordObj, yormTable);
         } catch (InvocationTargetException | IllegalAccessException e) {
             throw new YormException("Error while saving record:" + recordObj, e);
+        } catch (YormException ye) {
+            throw ye;
         }
         return result;
     }
