@@ -24,7 +24,7 @@ CREATE TABLE person
     id         INT(10) AUTO_INCREMENT PRIMARY KEY NOT NULL,
     name       VARCHAR(20) NOT NULL,
     email      VARCHAR(55) NOT NULL,
-    last_login DATETIME    NOT NULL,
+    last_login TIMESTAMP   NOT NULL,
     company_id INT(10)     NOT NULL
 );
 

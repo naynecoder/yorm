@@ -45,6 +45,7 @@
     <version.maven-surefire>3.0.0-M5</version.maven-surefire>
     <version.log4j>2.23.1</version.log4j>
     <version.postgresql>42.7.3</version.postgresql>
+    <version.sqlite>3.46.0.0</version.sqlite>
   </properties>
   <dependencies>
     <dependency>
@@ -104,6 +105,13 @@
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
       <version>${version.postgresql}</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc -->
+    <dependency>
+      <groupId>org.xerial</groupId>
+      <artifactId>sqlite-jdbc</artifactId>
+      <version>${version.sqlite}</version>
       <scope>test</scope>
     </dependency>
     <dependency>

@@ -42,6 +42,17 @@ public class RowRecordConverter {
             Map.entry(String.class, input -> (String) input)
     );
 
+    private static final Map<Class<?>, Converter<?>> BOOLEAN_CONVERTERS = Map.ofEntries(
+            Map.entry(boolean.class, input -> input),
+            Map.entry(byte.class, input -> ((byte) input) == 0x01),
+            Map.entry(char.class, input -> ((char) input) == 0x01),
+            Map.entry(short.class, input -> ((short) input) == 0x01),
+            Map.entry(int.class, input -> ((int) input) == 0x01),
+            Map.entry(long.class, input -> ((long) input) == 0x01),
+            Map.entry(float.class, input -> ((float) input) == 0x01),
+            Map.entry(double.class, input -> ((double) input) == 0x01)
+    );
+
     private static final Map<Class<?>, Converter<?>> ENUM_SERIALIZERS = Map.ofEntries(
             Map.entry(String.class, input -> ((Enum<?>) input).toString()),
             Map.entry(char.class, input -> (char) ((Enum<?>) input).ordinal()),
@@ -154,6 +165,42 @@ public class RowRecordConverter {
             return (Converter<OutputType>) PASS_THROUGH_CONVERTERS.get(double.class);
         }
 
+        if (inputTypeClass.equals(boolean.class) && outputTypeClass.isPrimitive()) {
+            //noinspection unchecked
+            return (Converter<OutputType>) PASS_THROUGH_CONVERTERS.get(boolean.class);
+        }
+
+        if (inputTypeClass.equals(Boolean.class) && outputTypeClass.isPrimitive()) {
+            //noinspection unchecked
+            return (Converter<OutputType>) PASS_THROUGH_CONVERTERS.get(Boolean.class);
+        }
+
+        if (inputTypeClass.isPrimitive() && outputTypeClass.equals(boolean.class)) {
+            //noinspection unchecked
+            return (Converter<OutputType>) BOOLEAN_CONVERTERS.get(inputTypeClass);
+        }
+
+        if (inputTypeClass.isPrimitive() && outputTypeClass.equals(Boolean.class)) {
+            //noinspection unchecked
+            return (Converter<OutputType>) BOOLEAN_CONVERTERS.get(inputTypeClass);
+        }
+
+        if (inputTypeClass.equals(String.class) && outputTypeClass.equals(LocalDateTime.class)) {
+            //noinspection unchecked
+            return input -> (OutputType) LocalDateTime.parse((String) input);
+        }
+
+        if (inputTypeClass.equals(String.class) && outputTypeClass.equals(LocalDate.class)) {
+            //noinspection unchecked
+            return input -> (OutputType) LocalDate.parse((String) input);
+        }
+
+        if (inputTypeClass.equals(String.class) && outputTypeClass.equals(LocalTime.class)) {
+            //noinspection unchecked
+            return input -> (OutputType) LocalTime.parse((String) input);
+        }
+
+
         throw new RuntimeException(String.format(
                 "No deserializer found for %s to %s. You should file a bug to let us know what we need to add!",
                 inputTypeClass.getName(), outputTypeClass.getName()
@@ -256,6 +303,8 @@ public class RowRecordConverter {
                         preparedStatement.setInt(paramIndex, (int) value);
                     } else if (value instanceof Long) {
                         preparedStatement.setLong(paramIndex, (long) value);
+                    } else if (value instanceof Boolean) {
+                        preparedStatement.setBoolean(paramIndex, (boolean) value);
                     } else {
                         throw new YormException("Incompatible value:" + value + " of class:" + value.getClass().getName() + " for column type:" + type);
                     }
