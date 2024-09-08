@@ -6,7 +6,7 @@
 
   <groupId>org.yorm</groupId>
   <artifactId>yorm</artifactId>
-  <version>0.0.8</version>
+  <version>0.0.9</version>
 
   <packaging>jar</packaging>
 
@@ -36,12 +36,12 @@
   <properties>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
-    <version.junit>5.10.2</version.junit>
+    <version.junit>5.10.3</version.junit>
     <version.hikaricp>5.1.0</version.hikaricp>
     <version.mysql>8.0.33</version.mysql>
     <version.slf4j-api>2.0.13</version.slf4j-api>
     <version.log4j-slf4j-impl>2.23.1</version.log4j-slf4j-impl>
-    <version.testcontainers>1.19.8</version.testcontainers>
+    <version.testcontainers>1.20.0</version.testcontainers>
     <version.maven-surefire>3.0.0-M5</version.maven-surefire>
     <version.log4j>2.23.1</version.log4j>
     <version.postgresql>42.7.3</version.postgresql>
