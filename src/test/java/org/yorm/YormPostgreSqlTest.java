@@ -254,7 +254,7 @@ class YormPostgreSqlTest {
     @Test
     @Order(15)
     void testTimeType() throws YormException {
-        HistoryAnnotation refAnnotation = new HistoryAnnotation("Test subject", 12.4f, LocalTime.NOON, "This is a jaunty text\n");
+        HistoryAnnotation refAnnotation = new HistoryAnnotation("Test subject", 12.4f, LocalTime.NOON, "This is a jaunty text\n", "Small side note");
         List annotationHistories = List.of(refAnnotation);
         yorm.insert(annotationHistories);
         List<HistoryAnnotation> retrievedList = yorm.find(HistoryAnnotation.class);
@@ -266,7 +266,7 @@ class YormPostgreSqlTest {
     @Test
     @Order(16)
     void testTextType() throws YormException {
-        HistoryAnnotation refAnnotation = new HistoryAnnotation("Funny subject", 12.4f, LocalTime.MIDNIGHT, "Completely random generated text");
+        HistoryAnnotation refAnnotation = new HistoryAnnotation("Funny subject", 12.4f, LocalTime.MIDNIGHT, "Completely random generated text", "Small side note");
         yorm.save(refAnnotation);
         List<HistoryAnnotation> retrievedList = yorm.from(HistoryAnnotation.class).where(HistoryAnnotation::content).like("random").find();
         assertEquals(1, retrievedList.size());

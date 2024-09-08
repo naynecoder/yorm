@@ -1,5 +1,7 @@
 package org.yorm;
 
+import static org.yorm.util.RowRecordConverter.converterFor;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -24,8 +26,6 @@ import org.yorm.exception.YormException;
 import org.yorm.util.DbType;
 import org.yorm.util.Levenshtein;
 
-import static org.yorm.util.RowRecordConverter.converterFor;
-
 public class MapBuilder {
 
     private final DataSource ds;
@@ -40,10 +40,10 @@ public class MapBuilder {
         String dbTable = recordClassName;
         Field[] objectFields = recordClass.getDeclaredFields();
         Map<String, Method> methods = Arrays.stream(recordClass.getDeclaredMethods())
-                                            .collect(Collectors.toMap(
-                                                    method -> method.getName().toLowerCase(),
-                                                    method -> method
-                                            ));
+            .collect(Collectors.toMap(
+                method -> method.getName().toLowerCase(),
+                method -> method
+            ));
         List<YormTuple> tuples;
         try (Connection connection = ds.getConnection()) {
             DatabaseMetaData metaData = connection.getMetaData();
@@ -100,29 +100,27 @@ public class MapBuilder {
     private List<YormTuple> populateMap(Field[] objectFields, List<Description> descriptionList, Map<String, Method> methods) throws YormException {
         List<YormTuple> tuples = new ArrayList<>();
         Set<String> alreadyUsedObjectFields = new HashSet<>();
+        List<String> objectFieldNames = Arrays.stream(objectFields).map(Field::getName).toList();
         for (Description description : descriptionList) {
-
-            List<String> objectFieldNames = Arrays.stream(objectFields).map(Field::getName).toList();
             String objectField = findClosest(objectFieldNames, description.columnName());
-
-            if (alreadyUsedObjectFields.contains(objectField)) {
+            if (objectField != null && alreadyUsedObjectFields.contains(objectField)) {
                 continue;
             }
-
             Method method = methods.get(objectField.toLowerCase());
-
             alreadyUsedObjectFields.add(objectField);
+            Class<?> recordType = method.getReturnType();
+            Class<?> dbType = DbType.getType(description.type()).javaType;
             var tuple = new YormTuple(
-                    description.columnName(),
-                    objectField,
-                    DbType.getType(description.type()),
-                    Integer.parseInt(description.size()),
-                    yesNoToBoolean(description.isNullable()),
-                    description.isPrimaryKey(),
-                    yesNoToBoolean(description.isAutoincrement()),
-                    method,
-                    converterFor(method.getReturnType(), DbType.getType(description.type()).javaType),
-                    converterFor(DbType.getType(description.type()).javaType, method.getReturnType())
+                description.columnName(),
+                objectField,
+                DbType.getType(description.type()),
+                Integer.parseInt(description.size()),
+                yesNoToBoolean(description.isNullable()),
+                description.isPrimaryKey(),
+                yesNoToBoolean(description.isAutoincrement()),
+                method,
+                converterFor(recordType, dbType),
+                converterFor(dbType, recordType)
             );
             tuples.add(tuple);
 
