@@ -1,7 +1,7 @@
 
 # Change Log
 
-## 2024-09-08 version 0.9.0
+## 2024-09-08 version 0.8.1
 
 - Added fix for type Char
 
