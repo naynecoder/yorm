@@ -70,7 +70,6 @@ class YormMySqlTest {
     @Test
     @Order(2)
     void saveCompany() throws YormException {
-        CompanyType companyType = CompanyType.values()[0];
         Company company = new Company(0, "Hogwarts", "GB", LocalDate.of(1968, 2, 12), 154.1f, true, CompanyType.NOT_GREEDY, false);
         long id = yorm.save(company);
         assertEquals(1, id);
@@ -258,8 +257,8 @@ class YormMySqlTest {
     @Test
     @Order(15)
     void testTimeType() throws YormException {
-        HistoryAnnotation refAnnotation = new HistoryAnnotation("Test subject", 12.4f, LocalTime.NOON, "This is a jaunty text\n");
-        List annotationHistories = List.of(refAnnotation);
+        HistoryAnnotation refAnnotation = new HistoryAnnotation("Test subject", 12.4f, LocalTime.NOON, "This is a jaunty text\n", "Small side note");
+        List<HistoryAnnotation> annotationHistories = List.of(refAnnotation);
         yorm.insert(annotationHistories);
         List<HistoryAnnotation> retrievedList = yorm.find(HistoryAnnotation.class);
         assertEquals(1, retrievedList.size());
@@ -270,7 +269,7 @@ class YormMySqlTest {
     @Test
     @Order(16)
     void testTextType() throws YormException {
-        HistoryAnnotation refAnnotation = new HistoryAnnotation("Funny subject", 12.4f, LocalTime.MIDNIGHT, "Completely random generated text");
+        HistoryAnnotation refAnnotation = new HistoryAnnotation("Funny subject", 12.4f, LocalTime.MIDNIGHT, "Completely random generated text", "Small side note");
         yorm.save(refAnnotation);
         List<HistoryAnnotation> retrievedList = yorm.from(HistoryAnnotation.class).where(HistoryAnnotation::content).like("random").find();
         assertEquals(1, retrievedList.size());

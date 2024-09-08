@@ -56,7 +56,8 @@ CREATE TABLE history_annotation
     subject         VARCHAR(20) NOT NULL,
     amount          REAL DEFAULT 0 NULL,
     annotation_time TIME NULL,
-    content         TEXT
+    content         TEXT,
+    side_note       CHAR(15) NOT NULL
 );
 
 DROP VIEW IF EXISTS person_company;

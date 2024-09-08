@@ -1,6 +1,10 @@
 
 # Change Log
 
+## 2024-09-08 version 0.8.1
+
+- Added fix for type Char
+
 ## 2024-06-23 version 0.8.0
 
 - Fix on records with several boolean fields
