@@ -11,7 +11,7 @@ In the world of microservices, there is a tendency to have very contained logic 
 and hence reduced databases, that in many cases are simply no more than several tables with not that many fields.
 Java Records usually are a perfect fit for basic CRUD operations, and here is where Yorm shines.
 
-**Yorm** needs at least Java 17, although it works of newer versions as well.
+**Yorm** needs at least Java 21, although it works of newer versions as well.
 
 **Yorm** might be for you in case:
 
