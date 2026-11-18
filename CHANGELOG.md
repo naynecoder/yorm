@@ -1,6 +1,10 @@
 
 # Change Log
 
+## 2024-09-08 version 0.8.3
+
+- Bumped version to Java 25
+
 ## 2024-09-08 version 0.8.1
 
 - Added fix for type Char
