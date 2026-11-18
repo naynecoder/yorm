@@ -6,7 +6,7 @@
 
   <groupId>org.yorm</groupId>
   <artifactId>yorm</artifactId>
-  <version>0.8.2</version>
+  <version>0.8.3</version>
 
   <packaging>jar</packaging>
 
@@ -34,18 +34,28 @@
   </scm>
 
   <properties>
-    <maven.compiler.source>21</maven.compiler.source>
-    <maven.compiler.target>21</maven.compiler.target>
+    <maven.compiler.source>25</maven.compiler.source>
+    <maven.compiler.target>25</maven.compiler.target>
     <version.junit>5.14.1</version.junit>
     <version.hikaricp>5.1.0</version.hikaricp>
-    <version.mysql>8.0.33</version.mysql>
+    <version.mysql>9.7.0</version.mysql>
     <version.slf4j-api>2.0.17</version.slf4j-api>
-    <version.log4j-slf4j-impl>2.25.3</version.log4j-slf4j-impl>
+    <version.log4j-slf4j-impl>2.25.5</version.log4j-slf4j-impl>
     <version.testcontainers>1.21.4</version.testcontainers>
-    <version.maven-surefire>3.0.0-M5</version.maven-surefire>
-    <version.log4j>2.25.3</version.log4j>
-    <version.postgresql>42.7.10</version.postgresql>
+    <version.maven-surefire>3.5.5</version.maven-surefire>
+    <version.log4j>2.25.5</version.log4j>
+    <version.postgresql>42.7.12</version.postgresql>
   </properties>
+  <dependencyManagement>
+    <dependencies>
+      <!-- Override vulnerable transitive version pulled by testcontainers (CVE-2024-25710, CVE-2024-26308) -->
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-compress</artifactId>
+        <version>1.28.0</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
   <dependencies>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -61,7 +71,7 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
-      <version>2.0.13</version>
+      <version>${version.slf4j-api}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -81,6 +91,7 @@
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
       <version>${version.junit}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.testcontainers</groupId>
@@ -95,8 +106,8 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>mysql</groupId>
-      <artifactId>mysql-connector-java</artifactId>
+      <groupId>com.mysql</groupId>
+      <artifactId>mysql-connector-j</artifactId>
       <version>${version.mysql}</version>
       <scope>test</scope>
     </dependency>
@@ -126,9 +137,9 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.0</version>
+        <version>3.14.1</version>
         <configuration>
-          <release>17</release>
+          <release>25</release>
         </configuration>
       </plugin>
       <plugin>
